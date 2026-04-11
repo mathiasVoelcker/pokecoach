@@ -25,10 +25,10 @@ router.get('/', async (req, res) => {
             base_special_defense,
             base_speed,
             first_type (
-            name, color
+                name, color
             ),
             second_type (
-            name, color
+                name, color
             )
         `).range(from, to);
 
@@ -46,6 +46,7 @@ router.get('/search', async (req, res) => {
     const { data, error } = await supabase
         .from('pokemon')
         .select(`
+            id,
             name,
             base_hp,
             base_attack,
@@ -54,10 +55,10 @@ router.get('/search', async (req, res) => {
             base_special_defense,
             base_speed,
             first_type (
-            name, color
+            id, name, color
             ),
             second_type (
-            name, color
+            id, name, color
             )
         `)
         .ilike('name', `%${pokemonNameQuery.trim()}%`)
