@@ -8,7 +8,7 @@ const MAX_PAGE_SIZE = 1025;
 
 // GET /pokemon?page=1&limit=100
 router.get('/', async (req, res) => {
-    const page  = Math.max(1, parseInt(req.query.page)  || 1);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(MAX_PAGE_SIZE, parseInt(req.query.limit) || DEFAULT_PAGE_SIZE);
 
     const from = (page - 1) * limit;
@@ -37,15 +37,44 @@ router.get('/', async (req, res) => {
     res.json(data);
 });
 
+router.get('/search', async (req, res) => {
+    const pokemonNameQuery = req.query.name;
+    if (typeof pokemonNameQuery !== 'string' || !pokemonNameQuery.trim()) {
+        return res.status(400).json({ error: 'Invalid name query parameter' });
+    }
+
+    const { data, error } = await supabase
+        .from('pokemon')
+        .select(`
+            name,
+            base_hp,
+            base_attack,
+            base_defense,
+            base_special_attack,
+            base_special_defense,
+            base_speed,
+            first_type (
+            name, color
+            ),
+            second_type (
+            name, color
+            )
+        `)
+        .ilike('name', `%${pokemonNameQuery.trim()}%`)
+
+    if (error) return res.status(500).json({ error });
+    res.json(data);
+});
+
 // GET /pokemon/:id
 router.get('/:id', async (req, res) => {
-  const { data, error } = await supabase
-    .from('pokemon')
-    .select()
-    .eq('id', req.params.id)
-    .single();
-  if (error) return res.status(404).json({ error });
-  res.json(data);
+    const { data, error } = await supabase
+        .from('pokemon')
+        .select()
+        .eq('id', req.params.id)
+        .single();
+    if (error) return res.status(404).json({ error });
+    res.json(data);
 });
 
 // GET /pokemon/:id/move
