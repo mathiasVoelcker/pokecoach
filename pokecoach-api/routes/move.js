@@ -9,6 +9,7 @@ router.get('/search', async (req, res) => {
         .from('pokemon')
         .select(`pokemon_moves (
             move (
+                id,
                 name,
                 base_power,
                 category,
