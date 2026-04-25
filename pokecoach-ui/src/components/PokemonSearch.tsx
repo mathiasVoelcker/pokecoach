@@ -5,13 +5,13 @@ import { PokemonSearchCard } from "./PokemonSearchCard";
 interface Props {
     onAdd: (pokemon: Pokemon) => void;
     teamFull: boolean;
+    gameName?: string;
 }
 
-export function PokemonSearch({ onAdd, teamFull }: Props) {
+export function PokemonSearch({ onAdd, teamFull, gameName }: Props) {
 
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<Pokemon[]>([]);
-    // const [loaded, setLoaded] = useState<Record<string, Pokemon>>({});
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -21,12 +21,12 @@ export function PokemonSearch({ onAdd, teamFull }: Props) {
                 return;
             }
             setLoading(true);
-            const pokemons = await searchPokemon(query);
+            const pokemons = await searchPokemon(query, gameName);
             setResults(pokemons);
             setLoading(false);
         }, 500);
         return () => clearTimeout(timer);
-    }, [query]);
+    }, [query, gameName]);
 
     return (
         <div className="flex flex-col h-full">
@@ -37,7 +37,7 @@ export function PokemonSearch({ onAdd, teamFull }: Props) {
                     placeholder="Search Pokémon..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className="w-full rounded-lg bg-secondary border border-border pl-10 pr-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
+                    className="w-full rounded-lg bg-secondary border border-border px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
                 />
             </div>
             <div className="flex-1 overflow-y-auto space-y-2 pr-1">

@@ -2,6 +2,7 @@ import pokemonRoutes from './routes/pokemon.js';
 import abilityRoutes from './routes/ability.js';
 import moveRoutes from './routes/move.js'; 
 import pokecoachRoutes from './routes/pokecoach.js'; 
+import gameRoutes from './routes/game.js';
 import express from 'express';
 // import 'dotenv/config';
 import dotenv from 'dotenv';
@@ -20,6 +21,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use('/pokemon', pokemonRoutes);
+app.use('/game', gameRoutes);
 app.use('/ability', abilityRoutes);
 app.use('/move', moveRoutes);
 app.use('/pokecoach', pokecoachRoutes);

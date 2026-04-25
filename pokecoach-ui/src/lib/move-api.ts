@@ -1,13 +1,18 @@
 import type { ApiError, PokemonType } from "./pokemon-api";
+import { API_BASE_URL } from './config';
 
-const API_BASE_URL = 'https://pokecoach.onrender.com';
+export enum MoveCategory {
+    Physical = "Physical",
+    Special = "Special",
+    Status = "Status",
+}
 
 export interface Move {
     id: number;
     name: string;
     type: PokemonType;
     base_power: number;
-    category: "Physical" | "Special" | "Status"; // todo: refactor to enum
+    category: MoveCategory;
 }
 
 export async function searchMoves(query: string): Promise<Move[]> {

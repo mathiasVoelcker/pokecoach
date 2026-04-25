@@ -20,3 +20,7 @@ export const getStatColor = (statName: string) => {
 export function formatName(name: string): string {
   return name.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
+
+export function normalizeSearchText(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]/g, "");
+}

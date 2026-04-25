@@ -1,23 +1,24 @@
 import { useCallback, useEffect, useState } from "react";
 import { getArtwork } from "../lib/pokemon-api";
-import { formatName } from "../utils/utils";
-import { StatBar } from "./StatBar";
-import { TypeBadge } from "./TypeBadge";
+import { formatName, normalizeSearchText } from "../utils/utils";
 import { searchAbilities, type Ability } from "../lib/ability-api";
 import { searchMoves, type Move } from "../lib/move-api";
 import type { SelectedPokemon } from "../types/Pokemon.types";
 import { ChevronDown, X } from "lucide-react";
 import { CategoryIcon } from "./CategoryIcon";
+import { PokemonTypeStats } from "./PokemonTypeStats";
+import { TypeBadge } from "./TypeBadge";
 
 
 interface Props {
     pokemon: SelectedPokemon;
+    disableMega: boolean;
     onRemove: () => void;
     onUpdate: (updated: SelectedPokemon) => void;
 }
 
 
-export const TeamSlot = ({ pokemon, onRemove, onUpdate }: Props) => {
+export const TeamSlot = ({ pokemon, disableMega, onRemove, onUpdate }: Props) => {
 
     const [pokemonAbilities, setPokemonAbilities] = useState<Ability[]>([]);
     const [pokemonMoves, setPokemonMoves] = useState<Move[]>([]);
@@ -47,9 +48,9 @@ export const TeamSlot = ({ pokemon, onRemove, onUpdate }: Props) => {
         }
     }, [pokemonMoves]);
 
+    const normalizedMoveSearch = normalizeSearchText(moveSearch);
     const filteredMoves = pokemonMoves.filter(
-        // todo: not properly filtering move names with blank spaces, e.g. "Body Slam"
-        (m) => m.name.includes(moveSearch.toLowerCase()) && !pokemon.moves?.includes(m)
+        (m) => normalizeSearchText(m.name).includes(normalizedMoveSearch) && !pokemon.moves?.includes(m)
     );
 
 
@@ -58,12 +59,16 @@ export const TeamSlot = ({ pokemon, onRemove, onUpdate }: Props) => {
         onUpdate({ ...pokemon, ability: ability });
     };
 
+    const toggleMega = () => {
+        onUpdate({ ...pokemon, isMega: !pokemon.isMega });
+    };
+
     const removeMove = (move: Move) => {
         onUpdate({ ...pokemon, moves: pokemon.moves.filter((m) => m.id !== move.id) });
     };
 
     const addMove = (move: Move) => {
-        // if (pokemon.moves && pokemon.moves.length >= 4) return;
+        if (pokemon.moves && pokemon.moves.length >= 4) return;
         console.log(pokemon);
         console.log(move);
         onUpdate({ ...pokemon, moves: [...pokemon.moves, move] });
@@ -89,29 +94,27 @@ export const TeamSlot = ({ pokemon, onRemove, onUpdate }: Props) => {
                     <h4 className="font-display text-base font-bold truncate">
                         {formatName(pokemon.name)}
                     </h4>
-                    <div className="flex gap-1 mb-2">
-                        {/*  todo: consider common component for types and stats for team slot and search card */}
-                        <TypeBadge type={pokemon.first_type} />
-                        {pokemon.second_type && (
-                            <TypeBadge type={pokemon.second_type || { id: 0, name: "", color: "" }} />
-                        )}
-                    </div>
-                    <div className="grid gap-0.5">
-                        <StatBar name="HP" value={pokemon.base_hp} compact />
-                        <StatBar name="Attack" value={pokemon.base_attack} compact />
-                        <StatBar name="Defense" value={pokemon.base_defense} compact />
-                        <StatBar name="Sp. Atk" value={pokemon.base_special_attack} compact />
-                        <StatBar name="Sp. Def" value={pokemon.base_special_defense} compact />
-                        <StatBar name="Speed" value={pokemon.base_speed} compact />
-                    </div>
+                    <PokemonTypeStats pokemon={pokemon} />
                 </div>
             </div>
 
             {/* Ability */}
             <div className="mb-3">
-                <label className="text-[12px] uppercase tracking-wider text-muted-foreground font-display font-semibold mb-1 block">
-                    Ability
-                </label>
+                <div className="mb-1 flex items-center justify-between gap-3">
+                    <label className="text-[12px] uppercase tracking-wider text-muted-foreground font-display font-semibold block">
+                        Ability
+                    </label>
+                    <label className="flex items-center gap-2 text-[12px] uppercase tracking-wider text-muted-foreground font-display font-semibold cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={pokemon.isMega}
+                            onChange={toggleMega}
+                            disabled={disableMega}
+                            className="h-3.5 w-3.5 rounded border-border accent-primary"
+                        />
+                        Mega
+                    </label>
+                </div>
                 <div className="flex flex-wrap gap-1">
                     {pokemonAbilities?.map((ability) => (
                         <button

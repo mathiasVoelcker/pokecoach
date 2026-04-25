@@ -1,6 +1,4 @@
-// todo: store this base api in common file
-const API_BASE_URL = 'https://pokecoach.onrender.com';
-// const API_BASE_URL = 'http://localhost:8080';
+import { API_BASE_URL } from './config';
 
 export interface PokemonType {
     id: number;
@@ -21,24 +19,21 @@ export interface Pokemon {
     base_speed: number;
 }
 
-// export interface SearchResponse {
-//   data: Pokemon[];
-//   pagination: {
-//     total: number;
-//     page: number;
-//     limit: number;
-//     total_pages: number;
-//     has_next: boolean;
-//     has_prev: boolean;
-//   };
-// }
-
 export interface ApiError {
     error: string;
 }
 
-export async function searchPokemon(query: string): Promise<Pokemon[]> {
-    const params = new URLSearchParams({ name: query });
+export async function searchPokemon(pokemonName: string, gameName?: string): Promise<Pokemon[]> {
+    const params = new URLSearchParams();
+
+    if (pokemonName.trim()) {
+        params.set('name', pokemonName);
+    }
+
+    if (gameName?.trim()) {
+        params.set('game_name', gameName);
+    }
+
     const response = await fetch(`${API_BASE_URL}/pokemon/search?${params}`);
 
     if (!response.ok) {

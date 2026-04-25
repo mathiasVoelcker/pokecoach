@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import supabase from '../db/supabase.js';
+import { searchPokemons } from '../repositories/pokemonServices.js';
 
 const router = Router();
 
@@ -39,32 +40,21 @@ router.get('/', async (req, res) => {
 
 router.get('/search', async (req, res) => {
     const pokemonNameQuery = req.query.name;
+    const pokemonGameNameQuery = req.query.game_name || '';
     if (typeof pokemonNameQuery !== 'string' || !pokemonNameQuery.trim()) {
         return res.status(400).json({ error: 'Invalid name query parameter' });
     }
 
-    const { data, error } = await supabase
-        .from('pokemon')
-        .select(`
-            id,
-            name,
-            base_hp,
-            base_attack,
-            base_defense,
-            base_special_attack,
-            base_special_defense,
-            base_speed,
-            first_type (
-            id, name, color
-            ),
-            second_type (
-            id, name, color
-            )
-        `)
-        .ilike('name', `%${pokemonNameQuery.trim()}%`)
+    try {
+        const data = await searchPokemons({
+            name: pokemonNameQuery,
+            gameName: pokemonGameNameQuery,
+        });
 
-    if (error) return res.status(500).json({ error });
-    res.json(data);
+        res.json(data);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
 });
 
 // GET /pokemon/:id

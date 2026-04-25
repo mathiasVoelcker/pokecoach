@@ -1,30 +1,81 @@
 import type { SelectedPokemon } from "../types/Pokemon.types";
+import type { Game } from "../lib/game-api";
 import { TeamSlot } from "./TeamSlot";
 
 interface Props {
   pokemons: SelectedPokemon[];
   onRemove: (index: number) => void;
   onUpdate: (updated: SelectedPokemon) => void;
+  onAddPokemon: () => void;
+  onUsePokeCoach: () => void;
+  canAddPokemon: boolean;
+  isUsingPokeCoach: boolean;
+  showPokemonSearch: boolean;
+  games: Game[];
+  selectedGameName: string;
+  onSelectedGameNameChange: (gameName: string) => void;
 }
 
 export function TeamBuilder({ 
     pokemons, 
     onRemove,
-    onUpdate
+    onUpdate,
+    onAddPokemon,
+    onUsePokeCoach,
+    canAddPokemon,
+    isUsingPokeCoach,
+    showPokemonSearch,
+    games,
+    selectedGameName,
+    onSelectedGameNameChange,
 }: Props) {
   const emptySlots = 6 - pokemons.length;
+  const hasMegaSelected = pokemons.some((pokemon) => pokemon.isMega);
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 mb-4">
-        {/* <Users className="w-5 h-5 text-accent" /> */}
-        <h2 className="font-display text-xl font-bold">Your Team</h2>
-        <span className="text-muted-foreground text-sm font-display">{pokemons.length}/6</span>
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-2">
+          {/* <Users className="w-5 h-5 text-accent" /> */}
+          <h2 className="font-display text-xl font-bold">Your Team</h2>
+          <span className="text-muted-foreground text-sm font-display">{pokemons.length}/6</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <select
+            value={selectedGameName}
+            onChange={(e) => onSelectedGameNameChange(e.target.value)}
+            className="rounded-lg border border-border bg-card px-3 py-2 text-sm font-display text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+          >
+            <option value="">All Games</option>
+            {games.map((game) => (
+              <option key={game.id} value={game.name}>
+                {game.name}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            disabled={!canAddPokemon || isUsingPokeCoach}
+            onClick={onUsePokeCoach}
+            className="rounded-lg font-bold bg-cyan-500 px-4 py-2 text-sm font-display text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Use PokéCoach
+          </button>
+          <button
+            type="button"
+            onClick={onAddPokemon}
+            disabled={!canAddPokemon}
+            className="rounded-lg font-bold bg-primary px-4 py-2 text-sm font-display text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Add Pokemon
+          </button>
+        </div>
       </div>
-      <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+      <div className={`flex-1 content-start overflow-y-auto pr-1 grid gap-3 ${showPokemonSearch ? "xl:grid-cols-2" : "lg:grid-cols-2"}`}>
         {pokemons.map((p, i) => (
           <TeamSlot
             key={`${p.id}-${i}`}
             pokemon={p}
+            disableMega={!p.isMega && hasMegaSelected}
             onUpdate={onUpdate}
             onRemove={() => onRemove(i)}
             // onUpdate={(updated) => onUpdate(i, updated)}

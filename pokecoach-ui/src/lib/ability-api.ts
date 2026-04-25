@@ -1,6 +1,5 @@
 import type { ApiError } from "./pokemon-api";
-
-const API_BASE_URL = 'https://pokecoach.onrender.com';
+import { API_BASE_URL } from './config';
 
 export interface Ability {
     name: string;

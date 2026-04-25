@@ -1,7 +1,6 @@
 import { getArtwork, type Pokemon } from "../lib/pokemon-api";
 import { formatName } from "../utils/utils";
-import { StatBar } from "./StatBar";
-import { TypeBadge } from "./TypeBadge";
+import { PokemonTypeStats } from "./PokemonTypeStats";
 
 interface Props {
   pokemon: Pokemon;
@@ -34,21 +33,7 @@ export const PokemonSearchCard = ({ pokemon, onAdd, disabled }: Props) => {
             + Add
           </button>
         </div>
-        <div className="flex gap-1 mb-2">
-    
-            <TypeBadge type={pokemon.first_type} />
-            {pokemon.second_type && (
-                <TypeBadge type={pokemon.second_type || { id: 0, name: "", color: "" }} />
-            )}
-        </div>
-        <div className="grid gap-0.5">
-            <StatBar name="HP" value={pokemon.base_hp} compact />
-            <StatBar name="Attack" value={pokemon.base_attack} compact />
-            <StatBar name="Defense" value={pokemon.base_defense} compact />
-            <StatBar name="Sp. Atk" value={pokemon.base_special_attack} compact />
-            <StatBar name="Sp. Def" value={pokemon.base_special_defense} compact />
-            <StatBar name="Speed" value={pokemon.base_speed} compact />
-        </div>
+        <PokemonTypeStats pokemon={pokemon} />
       </div>
     </div>
   );

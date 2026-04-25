@@ -1,15 +1,34 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { type SelectedPokemon } from "../types/Pokemon.types";
 import { toast } from "sonner";
 import { PokemonSearch } from "../components/PokemonSearch";
 import { type Pokemon } from "../lib/pokemon-api";
 import { TeamBuilder } from "../components/TeamBuilder";
+import { getPokecoachSuggestion } from "../lib/pokecoach-api";
+import { getGames, type Game } from "../lib/game-api";
 
 
 const Index = () => {
 
     const [team, setTeam] = useState<SelectedPokemon[]>([]);
+    const [showPokemonSearch, setShowPokemonSearch] = useState(false);
+    const [loadingSuggestion, setLoadingSuggestion] = useState(false);
+    const [games, setGames] = useState<Game[]>([]);
+    const [selectedGameName, setSelectedGameName] = useState("");
 
+    useEffect(() => {
+        const loadGames = async () => {
+            try {
+                const availableGames = await getGames();
+                setGames(availableGames);
+            } catch (error) {
+                const message = error instanceof Error ? error.message : "Failed to load games.";
+                toast.error(message);
+            }
+        };
+
+        loadGames();
+    }, [setGames]);
 
     const addToTeam = useCallback(
         (pokemon: Pokemon) => {
@@ -21,8 +40,12 @@ const Index = () => {
                 ...pokemon,
                 moves: [],
                 ability: null,
+                isMega: false,
+                pros: [],
+                cons: [],
             };
             setTeam((prev) => [...prev, teamPokemon]);
+            setShowPokemonSearch(false);
             toast.success(`${pokemon.name.replace(/\b\w/g, (c) => c.toUpperCase())} added to team!`);
         },
         [team.length]
@@ -39,6 +62,26 @@ const Index = () => {
         setTeam((prev) => prev.filter((_, i) => i !== index));
     }, [setTeam]);
 
+    const onUsePokeCoach = useCallback(async () => {
+        if (team.length >= 6) {
+            toast.error("Team is full! Remove a Pokémon first.");
+            return;
+        }
+
+        setLoadingSuggestion(true);
+
+        try {
+            const suggestedPokemon = await getPokecoachSuggestion({ team, game: selectedGameName || null });
+            setTeam((prev) => [...prev, suggestedPokemon]);
+            toast.success(`${suggestedPokemon.name.replace(/\b\w/g, (c) => c.toUpperCase())} suggested by PokéCoach!`);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Failed to get PokéCoach suggestion.";
+            toast.error(message);
+        } finally {
+            setLoadingSuggestion(false);
+        }
+    }, [team, selectedGameName]);
+
     return (
         <div className="min-h-screen bg-background flex flex-col">
             <header className="border-b border-border px-6 py-4 flex items-center gap-3">
@@ -50,16 +93,44 @@ const Index = () => {
                 </h1>
             </header>
             <main className="flex-1 flex flex-col lg:flex-row gap-0 overflow-hidden">
-                <section className="lg:w-1/2 border-r border-border p-6 flex flex-col overflow-hidden">
-                    <PokemonSearch onAdd={addToTeam} teamFull={team.length >= 6} />
-                </section>
-                <section className="lg:w-1/2 p-6 flex flex-col overflow-hidden">
+                <section className="min-w-0 flex-1 p-6 flex flex-col overflow-hidden">
                     <TeamBuilder 
                         pokemons={team} 
                         onRemove={removeFromTeam} 
                         onUpdate={updateTeamMember} 
+                        onAddPokemon={() => setShowPokemonSearch((prev) => !prev)}
+                        canAddPokemon={team.length < 6}
+                        onUsePokeCoach={onUsePokeCoach}
+                        isUsingPokeCoach={loadingSuggestion}
+                        showPokemonSearch={showPokemonSearch}
+                        games={games}
+                        selectedGameName={selectedGameName}
+                        onSelectedGameNameChange={setSelectedGameName}
                     />
                 </section>
+                {showPokemonSearch && (
+                    <section className="w-full border-t border-border p-6 lg:w-[28rem] lg:border-l lg:border-t-0 flex flex-col overflow-hidden">
+                        <div className="h-full rounded-xl border border-border bg-card p-4 shadow-sm flex flex-col overflow-hidden">
+                            <div className="mb-4 flex items-center justify-between gap-3">
+                                <h2 className="font-display text-lg font-bold">Add Pokemon</h2>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPokemonSearch(false)}
+                                    className="text-sm font-display text-muted-foreground transition-colors hover:text-foreground"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                            <div className="min-h-0 flex-1 overflow-hidden">
+                                <PokemonSearch
+                                    onAdd={addToTeam}
+                                    teamFull={team.length >= 6}
+                                    gameName={selectedGameName || undefined}
+                                />
+                            </div>
+                        </div>
+                    </section>
+                )}
             </main>
         </div>
     );
