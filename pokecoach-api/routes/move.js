@@ -1,28 +1,16 @@
 import { Router } from 'express';
-import supabase from '../db/supabase.js';
+import { getMovesByPokemonName } from '../repositories/moveService.js';
 
 const router = Router();
 
 router.get('/search', async (req, res) => {
     const pokemonNameQuery = req.query.pokemonName;
-    const { data, error } = await supabase
-        .from('pokemon')
-        .select(`pokemon_moves (
-            move (
-                id,
-                name,
-                base_power,
-                category,
-                type (
-                    name,
-                    color
-                )
-            )
-        )`)
-        .eq('name', pokemonNameQuery)
-
-    if (error) return res.status(500).json({ error });
-    res.json(data.map(p => p.pokemon_moves).flat().map(pm => pm.move));
+    try {
+        const data = await getMovesByPokemonName(pokemonNameQuery);
+        res.json(data);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
 });
 
 export default router;

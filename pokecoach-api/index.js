@@ -1,21 +1,19 @@
+import 'dotenv/config';
 import pokemonRoutes from './routes/pokemon.js';
 import abilityRoutes from './routes/ability.js';
 import moveRoutes from './routes/move.js'; 
 import pokecoachRoutes from './routes/pokecoach.js'; 
 import gameRoutes from './routes/game.js';
 import express from 'express';
-// import 'dotenv/config';
-import dotenv from 'dotenv';
 import cors from 'cors';
-
-
-
-dotenv.config();
+import { Router } from 'express';
+import { main } from './agents/geminiAgent.js';
 
 const app = express();
 const port = 8080;
 
-console.log(process.env.ALLOWED_ORIGIN)
+const router = Router();
+
 app.use(cors({
   origin: process.env.ALLOWED_ORIGIN,
 }));
@@ -25,6 +23,10 @@ app.use('/game', gameRoutes);
 app.use('/ability', abilityRoutes);
 app.use('/move', moveRoutes);
 app.use('/pokecoach', pokecoachRoutes);
+app.use('/test', router.get('/test', (req, res) => {
+    res.json({ message: 'Test endpoint' });
+    main();
+  }));
 
 app.listen(port, () => {
   console.log(`API running at http://localhost:${port}`);

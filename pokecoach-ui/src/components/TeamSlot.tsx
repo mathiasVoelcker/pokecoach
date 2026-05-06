@@ -4,7 +4,7 @@ import { formatName, normalizeSearchText } from "../utils/utils";
 import { searchAbilities, type Ability } from "../lib/ability-api";
 import { searchMoves, type Move } from "../lib/move-api";
 import type { SelectedPokemon } from "../types/Pokemon.types";
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, RotateCcw, X } from "lucide-react";
 import { CategoryIcon } from "./CategoryIcon";
 import { PokemonTypeStats } from "./PokemonTypeStats";
 import { TypeBadge } from "./TypeBadge";
@@ -15,10 +15,21 @@ interface Props {
     disableMega: boolean;
     onRemove: () => void;
     onUpdate: (updated: SelectedPokemon) => void;
+    onRetrySuggestion?: () => void;
+    isRetryingSuggestion?: boolean;
+    disableRetrySuggestion?: boolean;
 }
 
 
-export const TeamSlot = ({ pokemon, disableMega, onRemove, onUpdate }: Props) => {
+export const TeamSlot = ({
+    pokemon,
+    disableMega,
+    onRemove,
+    onUpdate,
+    onRetrySuggestion,
+    isRetryingSuggestion = false,
+    disableRetrySuggestion = false,
+}: Props) => {
 
     const [pokemonAbilities, setPokemonAbilities] = useState<Ability[]>([]);
     const [pokemonMoves, setPokemonMoves] = useState<Move[]>([]);
@@ -27,7 +38,6 @@ export const TeamSlot = ({ pokemon, disableMega, onRemove, onUpdate }: Props) =>
 
     const doAbilitySearch = useCallback(async () => {
         const searchedPokemonAbilities = await searchAbilities(pokemon.name);
-        console.log(searchedPokemonAbilities)
         setPokemonAbilities(searchedPokemonAbilities);
     }, [pokemonAbilities]);
 
@@ -69,8 +79,6 @@ export const TeamSlot = ({ pokemon, disableMega, onRemove, onUpdate }: Props) =>
 
     const addMove = (move: Move) => {
         if (pokemon.moves && pokemon.moves.length >= 4) return;
-        console.log(pokemon);
-        console.log(move);
         onUpdate({ ...pokemon, moves: [...pokemon.moves, move] });
         setMoveSearch("");
     };
@@ -95,6 +103,54 @@ export const TeamSlot = ({ pokemon, disableMega, onRemove, onUpdate }: Props) =>
                         {formatName(pokemon.name)}
                     </h4>
                     <PokemonTypeStats pokemon={pokemon} />
+                    {pokemon.isPokecoachSuggestion && (
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                            <div className="relative group/pros">
+                                <span className="cursor-default rounded-md bg-emerald-500/15 px-2 py-0.5 text-[11px] font-display font-semibold uppercase tracking-wider text-emerald-300">
+                                    Pros
+                                </span>
+                                <div className="pointer-events-none absolute left-0 top-full z-20 mt-2 hidden w-56 rounded-md border border-border bg-popover p-3 text-xs text-popover-foreground shadow-lg group-hover/pros:block">
+                                    {pokemon.pros.length > 0 ? (
+                                        <ul className="space-y-1">
+                                            {pokemon.pros.map((pro) => (
+                                                <li key={pro}>{pro}</li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <p>No pros available.</p>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="relative group/cons">
+                                <span className="cursor-default rounded-md bg-rose-500/15 px-2 py-0.5 text-[11px] font-display font-semibold uppercase tracking-wider text-rose-300">
+                                    Cons
+                                </span>
+                                <div className="pointer-events-none absolute left-0 top-full z-20 mt-2 hidden w-56 rounded-md border border-border bg-popover p-3 text-xs text-popover-foreground shadow-lg group-hover/cons:block">
+                                    {pokemon.cons.length > 0 ? (
+                                        <ul className="space-y-1">
+                                            {pokemon.cons.map((con) => (
+                                                <li key={con}>{con}</li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <p>No cons available.</p>
+                                    )}
+                                </div>
+                            </div>
+                            {onRetrySuggestion && (
+                                <button
+                                    type="button"
+                                    onClick={onRetrySuggestion}
+                                    disabled={disableRetrySuggestion}
+                                    className="inline-flex items-center gap-1 rounded-md bg-cyan-500/15 px-2 py-0.5 text-[11px] font-display font-semibold uppercase text-cyan-200 transition-colors hover:bg-cyan-500/25 disabled:cursor-not-allowed disabled:opacity-50"
+                                    title="Get a different PokéCoach suggestion"
+                                >
+                                    <RotateCcw className={`h-3 w-3 ${isRetryingSuggestion ? "animate-spin" : ""}`} />
+                                    Retry
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 

@@ -1,4 +1,3 @@
-import type { Game } from "../lib/game-api";
 import type { Move } from "../lib/move-api";
 import { type Pokemon } from "../lib/pokemon-api";
 
@@ -12,9 +11,11 @@ export interface SelectedPokemon extends Pokemon {
   isMega: boolean;
   pros: string[];
   cons: string[];
+  isPokecoachSuggestion: boolean;
 }
 
 export interface PokecoachRequest {
   team: SelectedPokemon[];
   game: string | null;
+  previouslyRecommendedPokemon?: string[];
 }

@@ -8,8 +8,10 @@ interface Props {
   onUpdate: (updated: SelectedPokemon) => void;
   onAddPokemon: () => void;
   onUsePokeCoach: () => void;
+  onRetryPokeCoachSuggestion: (index: number) => void;
   canAddPokemon: boolean;
   isUsingPokeCoach: boolean;
+  retryingSuggestionIndex: number | null;
   showPokemonSearch: boolean;
   games: Game[];
   selectedGameName: string;
@@ -22,15 +24,17 @@ export function TeamBuilder({
     onUpdate,
     onAddPokemon,
     onUsePokeCoach,
+    onRetryPokeCoachSuggestion,
     canAddPokemon,
     isUsingPokeCoach,
+    retryingSuggestionIndex,
     showPokemonSearch,
     games,
     selectedGameName,
     onSelectedGameNameChange,
 }: Props) {
   const emptySlots = 6 - pokemons.length;
-  const hasMegaSelected = pokemons.some((pokemon) => pokemon.isMega);
+  // const hasMegaSelected = pokemons.some((pokemon) => pokemon.isMega);
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between gap-3 mb-4">
@@ -54,7 +58,7 @@ export function TeamBuilder({
           </select>
           <button
             type="button"
-            disabled={!canAddPokemon || isUsingPokeCoach}
+            disabled={!canAddPokemon || isUsingPokeCoach || retryingSuggestionIndex !== null}
             onClick={onUsePokeCoach}
             className="rounded-lg font-bold bg-cyan-500 px-4 py-2 text-sm font-display text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
@@ -75,10 +79,12 @@ export function TeamBuilder({
           <TeamSlot
             key={`${p.id}-${i}`}
             pokemon={p}
-            disableMega={!p.isMega && hasMegaSelected}
+            disableMega={false}
             onUpdate={onUpdate}
             onRemove={() => onRemove(i)}
-            // onUpdate={(updated) => onUpdate(i, updated)}
+            onRetrySuggestion={p.isPokecoachSuggestion ? () => onRetryPokeCoachSuggestion(i) : undefined}
+            isRetryingSuggestion={retryingSuggestionIndex === i}
+            disableRetrySuggestion={isUsingPokeCoach || retryingSuggestionIndex !== null}
           />
         ))}
         {Array.from({ length: emptySlots }).map((_, i) => (

@@ -13,6 +13,8 @@ const Index = () => {
     const [team, setTeam] = useState<SelectedPokemon[]>([]);
     const [showPokemonSearch, setShowPokemonSearch] = useState(false);
     const [loadingSuggestion, setLoadingSuggestion] = useState(false);
+    const [retryingSuggestionIndex, setRetryingSuggestionIndex] = useState<number | null>(null);
+    const [previousPokecoachRecommendations, setPreviousPokecoachRecommendations] = useState<string[]>([]);
     const [games, setGames] = useState<Game[]>([]);
     const [selectedGameName, setSelectedGameName] = useState("");
 
@@ -43,6 +45,7 @@ const Index = () => {
                 isMega: false,
                 pros: [],
                 cons: [],
+                isPokecoachSuggestion: false,
             };
             setTeam((prev) => [...prev, teamPokemon]);
             setShowPokemonSearch(false);
@@ -68,11 +71,23 @@ const Index = () => {
             return;
         }
 
+        if (retryingSuggestionIndex !== null) {
+            return;
+        }
+
         setLoadingSuggestion(true);
 
         try {
-            const suggestedPokemon = await getPokecoachSuggestion({ team, game: selectedGameName || null });
-            setTeam((prev) => [...prev, suggestedPokemon]);
+            const suggestedPokemon = await getPokecoachSuggestion({
+                team,
+                game: selectedGameName || null,
+            });
+            const suggestedPokemonWithFlag: SelectedPokemon = {
+                ...suggestedPokemon,
+                isPokecoachSuggestion: true,
+            };  
+            setTeam((prev) => [...prev, suggestedPokemonWithFlag]);
+            setPreviousPokecoachRecommendations((_) => [suggestedPokemon.name]);
             toast.success(`${suggestedPokemon.name.replace(/\b\w/g, (c) => c.toUpperCase())} suggested by PokéCoach!`);
         } catch (error) {
             const message = error instanceof Error ? error.message : "Failed to get PokéCoach suggestion.";
@@ -80,7 +95,47 @@ const Index = () => {
         } finally {
             setLoadingSuggestion(false);
         }
-    }, [team, selectedGameName]);
+    }, [team, selectedGameName, previousPokecoachRecommendations, retryingSuggestionIndex]);
+
+    const onRetryPokeCoachSuggestion = useCallback(async (index: number) => {
+        if (loadingSuggestion || retryingSuggestionIndex !== null) {
+            return;
+        }
+
+        const pokemonToReplace = team[index];
+
+        if (!pokemonToReplace?.isPokecoachSuggestion) {
+            return;
+        }
+
+        setRetryingSuggestionIndex(index);
+
+        const teamWithoutSuggestion = team.filter((_, teamIndex) => teamIndex !== index);
+        const previouslyRecommendedPokemon = [...previousPokecoachRecommendations, pokemonToReplace.name];
+
+        try {
+            const suggestedPokemon = await getPokecoachSuggestion({
+                team: teamWithoutSuggestion,
+                game: selectedGameName || null,
+                previouslyRecommendedPokemon,
+            });
+            const suggestedPokemonWithFlag: SelectedPokemon = {
+                ...suggestedPokemon,
+                isPokecoachSuggestion: true,
+            };
+
+            setTeam((prev) => prev.map((pokemon, teamIndex) => (
+                teamIndex === index ? suggestedPokemonWithFlag : pokemon
+            )));
+            setPreviousPokecoachRecommendations((prev) => [...prev, pokemonToReplace.name]);
+            toast.success(`${suggestedPokemon.name.replace(/\b\w/g, (c) => c.toUpperCase())} suggested by PokéCoach!`);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Failed to retry PokéCoach suggestion.";
+            toast.error(message);
+        } finally {
+            setRetryingSuggestionIndex(null);
+        }
+    }, [team, selectedGameName, previousPokecoachRecommendations, loadingSuggestion, retryingSuggestionIndex]);
 
     return (
         <div className="min-h-screen bg-background flex flex-col">
@@ -101,7 +156,9 @@ const Index = () => {
                         onAddPokemon={() => setShowPokemonSearch((prev) => !prev)}
                         canAddPokemon={team.length < 6}
                         onUsePokeCoach={onUsePokeCoach}
+                        onRetryPokeCoachSuggestion={onRetryPokeCoachSuggestion}
                         isUsingPokeCoach={loadingSuggestion}
+                        retryingSuggestionIndex={retryingSuggestionIndex}
                         showPokemonSearch={showPokemonSearch}
                         games={games}
                         selectedGameName={selectedGameName}

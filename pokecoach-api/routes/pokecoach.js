@@ -1,43 +1,26 @@
 import { Router } from 'express';
-import { Agent, run } from "@openai/agents";
 import { z } from 'zod';
 import {
-  findPokemonByName,
   getAvailablePokemons,
-  getMovesByNames,
 } from '../repositories/pokemonServices.js';
+import { getMovesByNames } from '../repositories/moveService.js';
+import { getPokemonSuggestion } from '../agents/geminiAgent.js';
+
 
 const router = Router();
-
-const instructions = `You are an expert in Pokemon Video Game Championships (VGC). 
-                You are here to help people build their Pokemon teams for playing Pokemon Champions, the new game launched.
-                The goal is to build a team of 6 Pokemon that work well together and can win against other teams.
-                The battle format is double battles.
-                You will receive a partial team and must suggest exactly one Pokemon that complements it.
-                Return exactly one SelectedPokemon object.
-                When suggesting the pokemon, also suggest an ability and up to 4 moves for it.
-                Pick a pokemon that fits well with the existing team and helps in winning battles in pokemon champions.
-                You may only suggest Pokemon that are available in Pokemon Champions, which includes Pokemon from the first 9 generations, but not all of them.
-                When suggesting the pokemon and moves, take into consideration that opponents will only have access to pokemons available in Pokemon Champions as well.
-                Mega evolutions are allowed if the pokemon has one. Consider suggesting a mega evolution if it fits well with the team and the current meta.
-                A team can only have one mega evolution, so don't suggest a mega evolution if the team already has one.
-                If one of the existing pokemons in the team is mega evolution, consider the mega version of that pokemon when suggesting the new pokemon and moves.
-                Use lowercase slug-style names. Do not use any special form names, only base pokemon names. For example, use "charizard" instead of "charizard-mega-x" or "charizard-mega-y".
-                If you want to suggest a mega evolution, set the isMega property to true and still use the base pokemon name. For example, if you want to suggest mega charizard y, set the name to "charizard" and isMega to true.
-                Return structured data only.`;
-
-const moveSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  type: z.string(),
-  category: z.string(),
-  base_power: z.number().nullable(),
-});
 
 const pokemonTypeSchema = z.object({
   id: z.number(),
   name: z.string(),
   color: z.string(),
+});
+
+const moveSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  type: pokemonTypeSchema,
+  category: z.string(),
+  base_power: z.number().nullable(),
 });
 
 const selectedPokemonSchema = z.object({
@@ -58,21 +41,12 @@ const selectedPokemonSchema = z.object({
   cons: z.array(z.string()),
 });
 
-const pokecoachResponseSchema = z.object({
-    name: z.string(),
-    moves: z.array(z.string()),
-    ability: z.string().nullable(),
-    isMega: z.boolean(),
-    pros: z.array(z.string()),
-    cons: z.array(z.string()),
-});
+function findPokemonByName(pokemons, pokemonName) {
+  const normalizedPokemonName = pokemonName.trim().toLowerCase();
 
-const agent = new Agent({
-  name: "Pokecoach",
-  instructions,
-  model: "gpt-5.4-mini",
-  outputType: pokecoachResponseSchema,
-});
+  return pokemons.find((pokemon) => pokemon.name.toLowerCase() === normalizedPokemonName)
+    ?? pokemons.find((pokemon) => pokemon.name.toLowerCase().includes(normalizedPokemonName));
+}
 
 async function buildSelectedPokemonFromResponse(pokecoachResponse, availablePokemons) {
   const pokemonData = findPokemonByName(availablePokemons, pokecoachResponse.name);
@@ -97,6 +71,9 @@ router.post('/pokemon', async (req, res) => {
   const requestBody = req.body;
   const selectedPokemonList = requestBody?.team;
   const selectedGameName = requestBody?.game;
+  const previouslyRecommendedPokemon = Array.isArray(requestBody?.previouslyRecommendedPokemon)
+    ? requestBody.previouslyRecommendedPokemon
+    : [];
 
   if (!Array.isArray(selectedPokemonList)) {
     return res.status(400).json({
@@ -115,20 +92,29 @@ router.post('/pokemon', async (req, res) => {
       });
     }
 
-    const availablePokemonNames = availablePokemons.map((pokemon) => pokemon.name);
+    const previouslyRecommendedPokemonNames = new Set(
+      previouslyRecommendedPokemon
+        .filter((pokemonName) => typeof pokemonName === 'string')
+        .map((pokemonName) => pokemonName.trim().toLowerCase())
+        .filter(Boolean)
+    );
 
-    const prompt = `Here is the current Pokemon team as a JSON array of SelectedPokemon:
-        ${JSON.stringify(selectedPokemonList, null, 2)}
-        The selected game filter is: ${selectedGameName ? `"${selectedGameName}"` : 'none'}.
-        You may only suggest one pokemon from this allowed list:
-        ${JSON.stringify(availablePokemonNames)}
-        Suggest exactly one additional Pokemon that best complements this team in doubles play.
-        Return only one SelectedPokemon object that matches the schema.
-        Choose an ability and up to 4 moves for the suggestion.
-        Also include a short list of pros and cons for adding this Pokemon to the team.`;
+    const availablePokemonNames = availablePokemons
+      .map((pokemon) => pokemon.name)
+      .filter((pokemonName) => !previouslyRecommendedPokemonNames.has(pokemonName.toLowerCase()));
 
-    const result = await run(agent, prompt);
-    const suggestedPokemon = await buildSelectedPokemonFromResponse(result.finalOutput, availablePokemons);
+    if (availablePokemonNames.length === 0) {
+      return res.status(404).json({
+        error: 'No pokemon left to recommend after excluding previous PokéCoach suggestions.',
+      });
+    }
+
+    const pokecoachResponse = await getPokemonSuggestion(
+      selectedPokemonList,
+      availablePokemonNames,
+      previouslyRecommendedPokemonNames
+    );
+    const suggestedPokemon = await buildSelectedPokemonFromResponse(pokecoachResponse, availablePokemons);
 
     return res.json(suggestedPokemon);
   } catch (error) {
