@@ -16,8 +16,10 @@ interface Props {
   games: Game[];
   selectedGameName: string;
   onSelectedGameNameChange: (gameName: string) => void;
+  onAskPokeCoachForMove: (index: number) => void;
 }
 
+// TODO: use context to avoid prop drilling
 export function TeamBuilder({ 
     pokemons, 
     onRemove,
@@ -32,6 +34,7 @@ export function TeamBuilder({
     games,
     selectedGameName,
     onSelectedGameNameChange,
+    onAskPokeCoachForMove
 }: Props) {
   const emptySlots = 6 - pokemons.length;
   // const hasMegaSelected = pokemons.some((pokemon) => pokemon.isMega);
@@ -82,6 +85,7 @@ export function TeamBuilder({
             disableMega={false}
             onUpdate={onUpdate}
             onRemove={() => onRemove(i)}
+            onAskPokeCoachForMove={() => onAskPokeCoachForMove(i)}
             onRetrySuggestion={p.isPokecoachSuggestion ? () => onRetryPokeCoachSuggestion(i) : undefined}
             isRetryingSuggestion={retryingSuggestionIndex === i}
             disableRetrySuggestion={isUsingPokeCoach || retryingSuggestionIndex !== null}

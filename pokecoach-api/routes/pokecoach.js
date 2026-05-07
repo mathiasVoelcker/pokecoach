@@ -4,7 +4,7 @@ import {
   getAvailablePokemons,
 } from '../repositories/pokemonServices.js';
 import { getMovesByNames } from '../repositories/moveService.js';
-import { getPokemonSuggestion } from '../agents/geminiAgent.js';
+import { getMoveSuggestion, getPokemonSuggestion } from '../agents/geminiAgent.js';
 
 
 const router = Router();
@@ -111,8 +111,7 @@ router.post('/pokemon', async (req, res) => {
 
     const pokecoachResponse = await getPokemonSuggestion(
       selectedPokemonList,
-      availablePokemonNames,
-      previouslyRecommendedPokemonNames
+      availablePokemonNames
     );
     const suggestedPokemon = await buildSelectedPokemonFromResponse(pokecoachResponse, availablePokemons);
 
@@ -125,5 +124,33 @@ router.post('/pokemon', async (req, res) => {
     });
   }
 });
+
+router.post('/move', async (req, res) => {
+  try {
+    const requestBody = req.body;
+    const selectedPokemonList = requestBody?.team;
+    const pokemonIdToAskForMove = requestBody?.pokemonIdToAskForMove;
+
+    const pokecoachRecommendedMove = await getMoveSuggestion(
+      selectedPokemonList,
+      pokemonIdToAskForMove
+    );
+
+    const recommendedMove = await getMovesByNames([pokecoachRecommendedMove]);
+    if (recommendedMove.length === 0) {
+      return res.status(404).json({
+        error: `Recommended move not found in database: ${pokecoachRecommendedMove}`,
+      });
+    }
+
+    return res.json(recommendedMove[0]);
+  } catch (error) {
+    console.error('Failed to generate move suggestion:', error);
+
+    return res.status(500).json({
+      error: 'Failed to generate move suggestion.',
+    });
+  }
+})
 
 export default router;

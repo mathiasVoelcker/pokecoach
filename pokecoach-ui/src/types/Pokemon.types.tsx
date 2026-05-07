@@ -19,3 +19,8 @@ export interface PokecoachRequest {
   game: string | null;
   previouslyRecommendedPokemon?: string[];
 }
+
+export interface PokecoachMoveRequest {
+  team: SelectedPokemon[];
+  pokemonIdToAskForMove: number;
+}

@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { PokemonSearch } from "../components/PokemonSearch";
 import { type Pokemon } from "../lib/pokemon-api";
 import { TeamBuilder } from "../components/TeamBuilder";
-import { getPokecoachSuggestion } from "../lib/pokecoach-api";
+import { getMoveSuggestion, getPokecoachSuggestion } from "../lib/pokecoach-api";
 import { getGames, type Game } from "../lib/game-api";
 
 
@@ -28,7 +28,6 @@ const Index = () => {
                 toast.error(message);
             }
         };
-
         loadGames();
     }, [setGames]);
 
@@ -97,6 +96,25 @@ const Index = () => {
         }
     }, [team, selectedGameName, previousPokecoachRecommendations, retryingSuggestionIndex]);
 
+    const onAskPokeCoachForMove = useCallback(async (index: number) => {
+        console.log("Asking PokéCoach for move suggestion for ", team[index].name);
+        const pokemonIdToAskForMove = team[index].id;
+        try {
+            const suggestedMove = await getMoveSuggestion({
+                team,
+                pokemonIdToAskForMove,
+            });
+            setTeam((prev) => prev.map((pokemon, i) => (
+                i === index ? { ...pokemon, moves: [...pokemon.moves, suggestedMove] } : pokemon
+            )));
+            toast.success(`Move suggestion for ${team[index].name}: ${suggestedMove.name}`);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Failed to get move suggestion from PokéCoach.";
+            toast.error(message);
+        }
+
+    }, [team]);
+
     const onRetryPokeCoachSuggestion = useCallback(async (index: number) => {
         if (loadingSuggestion || retryingSuggestionIndex !== null) {
             return;
@@ -163,6 +181,7 @@ const Index = () => {
                         games={games}
                         selectedGameName={selectedGameName}
                         onSelectedGameNameChange={setSelectedGameName}
+                        onAskPokeCoachForMove={onAskPokeCoachForMove}
                     />
                 </section>
                 {showPokemonSearch && (

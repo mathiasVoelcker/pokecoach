@@ -73,7 +73,7 @@ function parsePokemonSuggestion(responseText) {
   return pokecoachResponseSchema.parse(suggestion);
 }
 
-export const getPokemonSuggestion = async (selectedPokemonList, availablePokemonNames, previouslyRecommendedPokemon = []) => {
+export const getPokemonSuggestion = async (selectedPokemonList, availablePokemonNames) => {
     const prompt = `
     You are an expert in Pokemon Video Game Championships (VGC). 
     You are here to help people build their Pokemon teams for playing Pokemon Champions, the new game launched.
@@ -83,8 +83,6 @@ export const getPokemonSuggestion = async (selectedPokemonList, availablePokemon
 	        ${JSON.stringify(selectedPokemonList, null, 2)}
 	        You may only suggest one pokemon from this allowed list:
 	        ${JSON.stringify(availablePokemonNames)}
-	        Do not suggest any pokemon from this previously recommended list:
-	        ${JSON.stringify(previouslyRecommendedPokemon)}
 	        Suggest exactly one additional Pokemon that best complements this team in doubles play.
         Return only one SelectedPokemon object that matches the schema.
         Mega evolutions are allowed if the pokemon has one. Consider suggesting a mega evolution if it fits well with the team and the current meta.
@@ -104,6 +102,28 @@ export const getPokemonSuggestion = async (selectedPokemonList, availablePokemon
     });
     console.log(response.text);
     return parsePokemonSuggestion(response.text);
+}
+
+export const getMoveSuggestion = async (selectedPokemonList, pokemonIdToAskForMove) => {
+    const prompt = `
+    You are an expert in Pokemon Video Game Championships (VGC). 
+    You are here to help people build their Pokemon teams for playing Pokemon Champions, the new game launched.
+    The goal is to build a team of 6 Pokemon that work well together and can win against other teams.
+
+        Here is the current Pokemon team as a JSON array of SelectedPokemon:
+            ${JSON.stringify(selectedPokemonList, null, 2)}
+            For the pokemon with id ${pokemonIdToAskForMove}, suggest one move that it doesn't currently have but would be a good addition to the moveset. Consider the current meta and the rest of the team when suggesting the move.
+        Return only the name of the move as a string. Use lowercase slug-style names. Do not include any additional text.`;
+    const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: prompt,
+        config: {
+            systemInstruction: instructions,
+            responseMimeType: "text/plain",
+        },
+    });
+    console.log(response.text);
+    return response.text;
 }
 
 

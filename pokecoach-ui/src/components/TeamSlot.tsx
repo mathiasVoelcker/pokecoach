@@ -16,6 +16,7 @@ interface Props {
     onRemove: () => void;
     onUpdate: (updated: SelectedPokemon) => void;
     onRetrySuggestion?: () => void;
+    onAskPokeCoachForMove: () => void;
     isRetryingSuggestion?: boolean;
     disableRetrySuggestion?: boolean;
 }
@@ -27,6 +28,7 @@ export const TeamSlot = ({
     onRemove,
     onUpdate,
     onRetrySuggestion,
+    onAskPokeCoachForMove,
     isRetryingSuggestion = false,
     disableRetrySuggestion = false,
 }: Props) => {
@@ -222,37 +224,46 @@ export const TeamSlot = ({
                     )}
                 </div>
                 {!pokemon.moves || pokemon.moves.length < 4 && (
-                    <div className="relative">
-                        <button
-                            onClick={() => setShowMoves(!showMoves)}
-                            className="flex items-center gap-1 rounded-md bg-secondary px-2 py-1 text-s font-display text-secondary-foreground hover:bg-secondary/80 transition-colors w-full justify-between"
-                        >
-                            Add move
-                            <ChevronDown className={`w-3 h-3 transition-transform ${showMoves ? "rotate-180" : ""}`} />
-                        </button>
-                        {showMoves && (
-                            <div className="absolute z-10 top-full left-0 right-0 mt-1 rounded-md bg-popover border border-border shadow-lg max-h-40 overflow-hidden flex flex-col">
-                                <input
-                                    type="text"
-                                    placeholder="Filter moves..."
-                                    value={moveSearch}
-                                    onChange={(e) => setMoveSearch(e.target.value)}
-                                    className="px-2 py-1.5 text-s bg-secondary border-b border-border text-foreground placeholder:text-muted-foreground focus:outline-none"
-                                    autoFocus
-                                />
-                                <div className="overflow-y-auto flex-1">
-                                    {filteredMoves.slice(0, 50).map((m) => (
-                                        <button
-                                            key={m.id}
-                                            onClick={() => addMove(m)}
-                                            className="block w-full text-left px-2 py-1 text-s font-display text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                                        >
-                                            {formatName(m.name)}
-                                        </button>
-                                    ))}
+                    <div className="flex items-start gap-2">
+                        <div className="relative flex-1">
+                            <button
+                                onClick={() => setShowMoves(!showMoves)}
+                                className="flex items-center gap-1 rounded-md bg-secondary px-2 py-1 text-s font-display text-secondary-foreground hover:bg-secondary/80 transition-colors w-full justify-between"
+                            >
+                                Add move
+                                <ChevronDown className={`w-3 h-3 transition-transform ${showMoves ? "rotate-180" : ""}`} />
+                            </button>
+                            {showMoves && (
+                                <div className="absolute z-10 top-full left-0 right-0 mt-1 rounded-md bg-popover border border-border shadow-lg max-h-40 overflow-hidden flex flex-col">
+                                    <input
+                                        type="text"
+                                        placeholder="Filter moves..."
+                                        value={moveSearch}
+                                        onChange={(e) => setMoveSearch(e.target.value)}
+                                        className="px-2 py-1.5 text-s bg-secondary border-b border-border text-foreground placeholder:text-muted-foreground focus:outline-none"
+                                        autoFocus
+                                    />
+                                    <div className="overflow-y-auto flex-1">
+                                        {filteredMoves.slice(0, 50).map((m) => (
+                                            <button
+                                                key={m.id}
+                                                onClick={() => addMove(m)}
+                                                className="block w-full text-left px-2 py-1 text-s font-display text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                                            >
+                                                {formatName(m.name)}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => onAskPokeCoachForMove()}
+                            className="shrink-0 rounded-md bg-cyan-500 px-2.5 py-1 text-s font-display font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                        >
+                            Ask PokéCoach
+                        </button>
                     </div>
                 )}
             </div>
