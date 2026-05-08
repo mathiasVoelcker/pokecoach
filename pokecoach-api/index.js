@@ -14,7 +14,7 @@ const port = 8080;
 
 const router = Router();
 
-const ALLOWED_ORIGIN = process.env.LOCAL_ORIGIN || process.env.VERCEL_ORIGIN;
+const ALLOWED_ORIGIN = [process.env.LOCAL_ORIGIN, process.env.VERCEL_ORIGIN].filter(Boolean);
 
 app.use(cors({
   origin: ALLOWED_ORIGIN,
