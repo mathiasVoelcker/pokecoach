@@ -14,8 +14,10 @@ const port = 8080;
 
 const router = Router();
 
+const ALLOWED_ORIGIN = process.env.LOCAL_ORIGIN || process.env.VERCEL_ORIGIN;
+
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGIN,
+  origin: ALLOWED_ORIGIN,
 }));
 app.use(express.json());
 app.use('/pokemon', pokemonRoutes);
