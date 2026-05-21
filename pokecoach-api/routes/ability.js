@@ -3,6 +3,7 @@ import supabase from '../db/supabase.js';
 
 const router = Router();
 
+// GET /ability/search?name=pikachu
 router.get('/search', async (req, res) => {
     const pokemonNameQuery = req.query.pokemonName;
     const { data, error } = await supabase

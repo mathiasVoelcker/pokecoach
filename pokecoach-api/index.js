@@ -7,7 +7,6 @@ import gameRoutes from './routes/game.js';
 import express from 'express';
 import cors from 'cors';
 import { Router } from 'express';
-import { main } from './agents/geminiAgent.js';
 
 const app = express();
 const port = 8080;
@@ -25,10 +24,6 @@ app.use('/game', gameRoutes);
 app.use('/ability', abilityRoutes);
 app.use('/move', moveRoutes);
 app.use('/pokecoach', pokecoachRoutes);
-app.use('/test', router.get('/test', (req, res) => {
-    res.json({ message: 'Test endpoint' });
-    main();
-  }));
 
 app.listen(port, () => {
   console.log(`API running at http://localhost:${port}`);

@@ -3,6 +3,7 @@ import { getMovesByPokemonName } from '../repositories/moveService.js';
 
 const router = Router();
 
+// GET /move/search?name=pikachu
 router.get('/search', async (req, res) => {
     const pokemonNameQuery = req.query.pokemonName;
     try {

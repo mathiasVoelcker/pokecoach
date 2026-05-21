@@ -1,32 +1,11 @@
-import type { SelectedPokemon } from "../types/Pokemon.types";
-import type { Game } from "../lib/game-api";
 import { TeamSlot } from "./TeamSlot";
+import { useTeamBuilderContext } from "./TeamBuilderContext";
 
-interface Props {
-  pokemons: SelectedPokemon[];
-  onRemove: (index: number) => void;
-  onUpdate: (updated: SelectedPokemon) => void;
-  onAddPokemon: () => void;
-  onUsePokeCoach: () => void;
-  onRetryPokeCoachSuggestion: (index: number) => void;
-  canAddPokemon: boolean;
-  isUsingPokeCoach: boolean;
-  retryingSuggestionIndex: number | null;
-  showPokemonSearch: boolean;
-  games: Game[];
-  selectedGameName: string;
-  onSelectedGameNameChange: (gameName: string) => void;
-  onAskPokeCoachForMove: (index: number) => void;
-}
-
-// TODO: use context to avoid prop drilling
-export function TeamBuilder({ 
-    pokemons, 
-    onRemove,
-    onUpdate,
-    onAddPokemon,
-    onUsePokeCoach,
-    onRetryPokeCoachSuggestion,
+export function TeamBuilder() {
+  const {
+    selectedPokemons,
+    onClickAddPokemon,
+    onClickUsePokeCoach,
     canAddPokemon,
     isUsingPokeCoach,
     retryingSuggestionIndex,
@@ -34,19 +13,15 @@ export function TeamBuilder({
     games,
     selectedGameName,
     onSelectedGameNameChange,
-    onAskPokeCoachForMove
-}: Props) {
-  const emptySlots = 6 - pokemons.length;
-  // const hasMegaSelected = pokemons.some((pokemon) => pokemon.isMega);
+  } = useTeamBuilderContext();
+  const emptySlots = 6 - selectedPokemons.length;
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between gap-3 mb-4">
+      <div className="flex lg:flex-row flex-col items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-2">
           {/* <Users className="w-5 h-5 text-accent" /> */}
           <h2 className="font-display text-xl font-bold">Your Team</h2>
-          <span className="text-muted-foreground text-sm font-display">{pokemons.length}/6</span>
-        </div>
-        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground text-sm font-display">{selectedPokemons.length}/6</span>
           <select
             value={selectedGameName}
             onChange={(e) => onSelectedGameNameChange(e.target.value)}
@@ -59,17 +34,19 @@ export function TeamBuilder({
               </option>
             ))}
           </select>
+        </div>
+        <div className="flex items-center gap-2">
           <button
             type="button"
             disabled={!canAddPokemon || isUsingPokeCoach || retryingSuggestionIndex !== null}
-            onClick={onUsePokeCoach}
+            onClick={onClickUsePokeCoach}
             className="rounded-lg font-bold bg-cyan-500 px-4 py-2 text-sm font-display text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Use PokéCoach
           </button>
           <button
             type="button"
-            onClick={onAddPokemon}
+            onClick={onClickAddPokemon}
             disabled={!canAddPokemon}
             className="rounded-lg font-bold bg-primary px-4 py-2 text-sm font-display text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
@@ -78,17 +55,12 @@ export function TeamBuilder({
         </div>
       </div>
       <div className={`flex-1 content-start overflow-y-auto pr-1 grid gap-3 ${showPokemonSearch ? "xl:grid-cols-2" : "lg:grid-cols-2"}`}>
-        {pokemons.map((p, i) => (
+        {selectedPokemons.map((p, i) => (
           <TeamSlot
             key={`${p.id}-${i}`}
             pokemon={p}
-            disableMega={false}
-            onUpdate={onUpdate}
-            onRemove={() => onRemove(i)}
-            onAskPokeCoachForMove={() => onAskPokeCoachForMove(i)}
-            onRetrySuggestion={p.isPokecoachSuggestion ? () => onRetryPokeCoachSuggestion(i) : undefined}
-            isRetryingSuggestion={retryingSuggestionIndex === i}
-            disableRetrySuggestion={isUsingPokeCoach || retryingSuggestionIndex !== null}
+            index={i}
+            disableMega={false} //todo: manage mega evolution in the database
           />
         ))}
         {Array.from({ length: emptySlots }).map((_, i) => (

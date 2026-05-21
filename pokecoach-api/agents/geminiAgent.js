@@ -73,7 +73,16 @@ function parsePokemonSuggestion(responseText) {
   return pokecoachResponseSchema.parse(suggestion);
 }
 
-export const getPokemonSuggestion = async (selectedPokemonList, availablePokemonNames) => {
+export const getPokemonSuggestion = async (selectedPokemonList, availablePokemonNames, excludedPokemonNames) => {
+    const allowedListMessage = availablePokemonNames.length > 0
+        ? `You may only suggest one pokemon from this allowed list: ${JSON.stringify(availablePokemonNames)}.`
+        : "Choose any existing pokemon from any generation as the suggestion.";
+
+    const previouslyRecommendedMessage = excludedPokemonNames.length > 0
+        ? `Do not suggest any of the following pokemon that were previously recommended by PokéCoach: ${JSON.stringify(excludedPokemonNames)}.`
+        : "";
+
+        // todo: move this to db
     const prompt = `
     You are an expert in Pokemon Video Game Championships (VGC). 
     You are here to help people build their Pokemon teams for playing Pokemon Champions, the new game launched.
@@ -81,8 +90,8 @@ export const getPokemonSuggestion = async (selectedPokemonList, availablePokemon
 
 	    Here is the current Pokemon team as a JSON array of SelectedPokemon:
 	        ${JSON.stringify(selectedPokemonList, null, 2)}
-	        You may only suggest one pokemon from this allowed list:
-	        ${JSON.stringify(availablePokemonNames)}
+            ${JSON.stringify(allowedListMessage)}
+            ${JSON.stringify(previouslyRecommendedMessage)}
 	        Suggest exactly one additional Pokemon that best complements this team in doubles play.
         Return only one SelectedPokemon object that matches the schema.
         Mega evolutions are allowed if the pokemon has one. Consider suggesting a mega evolution if it fits well with the team and the current meta.
@@ -90,6 +99,7 @@ export const getPokemonSuggestion = async (selectedPokemonList, availablePokemon
         Use lowercase slug-style names. Do not use any special form names, only base pokemon names. For example, use "charizard" instead of "charizard-mega-x" or "charizard-mega-y".
         Choose an ability and exactly 4 moves for the suggestion.
         Also include a short list of pros and cons for adding this Pokemon to the team.`;
+
 
     const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
@@ -124,13 +134,4 @@ export const getMoveSuggestion = async (selectedPokemonList, pokemonIdToAskForMo
     });
     console.log(response.text);
     return response.text;
-}
-
-
-export async function main() {
-  const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview", // gemini-3.1-pro-preview
-    contents: "give me the best pokemon for doubles in pokemon champions",
-  });
-  console.log(response.text);
 }

@@ -67,6 +67,7 @@ async function buildSelectedPokemonFromResponse(pokecoachResponse, availablePoke
   });
 }
 
+// POST /pokecoach/pokemon
 router.post('/pokemon', async (req, res) => {
   const requestBody = req.body;
   const selectedPokemonList = requestBody?.team;
@@ -84,34 +85,12 @@ router.post('/pokemon', async (req, res) => {
   try {
     const availablePokemons = await getAvailablePokemons(selectedGameName);
 
-    if (availablePokemons.length === 0) {
-      return res.status(404).json({
-        error: selectedGameName
-          ? `No pokemon found for game: ${selectedGameName}`
-          : 'No pokemon found.',
-      });
-    }
-
-    const previouslyRecommendedPokemonNames = new Set(
-      previouslyRecommendedPokemon
-        .filter((pokemonName) => typeof pokemonName === 'string')
-        .map((pokemonName) => pokemonName.trim().toLowerCase())
-        .filter(Boolean)
-    );
-
-    const availablePokemonNames = availablePokemons
-      .map((pokemon) => pokemon.name)
-      .filter((pokemonName) => !previouslyRecommendedPokemonNames.has(pokemonName.toLowerCase()));
-
-    if (availablePokemonNames.length === 0) {
-      return res.status(404).json({
-        error: 'No pokemon left to recommend after excluding previous PokéCoach suggestions.',
-      });
-    }
+    const availablePokemonNames = availablePokemons.map((pokemon) => pokemon.name)
 
     const pokecoachResponse = await getPokemonSuggestion(
       selectedPokemonList,
-      availablePokemonNames
+      selectedGameName ? availablePokemonNames : [], // if list is empty, the agent can choose any pokemon, otherwise it must choose from the list
+      previouslyRecommendedPokemon
     );
     const suggestedPokemon = await buildSelectedPokemonFromResponse(pokecoachResponse, availablePokemons);
 
@@ -125,12 +104,13 @@ router.post('/pokemon', async (req, res) => {
   }
 });
 
+// POST /pokecoach/move
 router.post('/move', async (req, res) => {
   try {
     const requestBody = req.body;
     const selectedPokemonList = requestBody?.team;
     const pokemonIdToAskForMove = requestBody?.pokemonIdToAskForMove;
-
+    // todo: evaluate in the long run if this approach throws errors, and if we need to query for move names upfront
     const pokecoachRecommendedMove = await getMoveSuggestion(
       selectedPokemonList,
       pokemonIdToAskForMove
