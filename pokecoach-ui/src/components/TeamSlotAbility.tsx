@@ -8,7 +8,7 @@ interface Props {
     disableMega: boolean;
     onUpdate: (updated: SelectedPokemon) => void;
 }
-
+// todo: revisit the disable mega logic. Will get this from database
 export function TeamSlotAbility({ pokemon, disableMega, onUpdate }: Props) {
     const [pokemonAbilities, setPokemonAbilities] = useState<Ability[]>([]);
 

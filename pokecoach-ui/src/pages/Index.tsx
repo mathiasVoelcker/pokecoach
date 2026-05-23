@@ -15,6 +15,7 @@ const Index = () => {
     const [showPokemonSearch, setShowPokemonSearch] = useState(false);
     const [loadingSuggestion, setLoadingSuggestion] = useState(false);
     const [retryingSuggestionIndex, setRetryingSuggestionIndex] = useState<number | null>(null);
+    const [askingMoveSuggestionIndex, setAskingMoveSuggestionIndex] = useState<number | null>(null);
     const [previousPokecoachRecommendations, setPreviousPokecoachRecommendations] = useState<string[]>([]);
     const [games, setGames] = useState<Game[]>([]);
     const [selectedGameName, setSelectedGameName] = useState("");
@@ -98,8 +99,14 @@ const Index = () => {
     }, [selectedPokemons, selectedGameName, previousPokecoachRecommendations, retryingSuggestionIndex]);
 
     const onAskPokeCoachForMove = useCallback(async (index: number) => {
+        if (askingMoveSuggestionIndex !== null) {
+            return;
+        }
+
         console.log("Asking PokéCoach for move suggestion for ", selectedPokemons[index].name);
         const pokemonIdToAskForMove = selectedPokemons[index].id;
+        setAskingMoveSuggestionIndex(index);
+
         try {
             const suggestedMove = await getMoveSuggestion({
                 team: selectedPokemons,
@@ -112,9 +119,11 @@ const Index = () => {
         } catch (error) {
             const message = error instanceof Error ? error.message : "Failed to get move suggestion from PokéCoach.";
             toast.error(message);
+        } finally {
+            setAskingMoveSuggestionIndex(null);
         }
 
-    }, [selectedPokemons]);
+    }, [selectedPokemons, askingMoveSuggestionIndex]);
 
     const onRetryPokeCoachSuggestion = useCallback(async (index: number) => {
         if (loadingSuggestion || retryingSuggestionIndex !== null) {
@@ -166,6 +175,7 @@ const Index = () => {
         canAddPokemon: selectedPokemons.length < 6,
         isUsingPokeCoach: loadingSuggestion,
         retryingSuggestionIndex,
+        askingMoveSuggestionIndex,
         showPokemonSearch,
         games,
         selectedGameName,
@@ -179,6 +189,7 @@ const Index = () => {
         onRetryPokeCoachSuggestion,
         loadingSuggestion,
         retryingSuggestionIndex,
+        askingMoveSuggestionIndex,
         showPokemonSearch,
         games,
         selectedGameName,

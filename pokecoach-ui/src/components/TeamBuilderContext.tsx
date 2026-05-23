@@ -12,6 +12,7 @@ export interface TeamBuilderContextValue {
   canAddPokemon: boolean;
   isUsingPokeCoach: boolean;
   retryingSuggestionIndex: number | null;
+  askingMoveSuggestionIndex: number | null;
   showPokemonSearch: boolean;
   games: Game[];
   selectedGameName: string;

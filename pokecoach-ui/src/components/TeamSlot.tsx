@@ -22,7 +22,6 @@ export const TeamSlot = ({
         onRemove,
         onUpdate,
         onRetryPokeCoachSuggestion,
-        onAskPokeCoachForMove,
         isUsingPokeCoach,
         retryingSuggestionIndex,
     } = useTeamBuilderContext();
@@ -108,8 +107,7 @@ export const TeamSlot = ({
             />
             <TeamSlotMoves
                 pokemon={pokemon}
-                onUpdate={onUpdate}
-                onAskPokeCoachForMove={() => onAskPokeCoachForMove(index)}
+                index={index}
             />
         </div>
     );

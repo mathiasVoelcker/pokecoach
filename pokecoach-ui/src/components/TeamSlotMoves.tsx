@@ -1,18 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, RotateCcw, X } from "lucide-react";
 import { searchMoves, type Move } from "../lib/move-api";
 import type { SelectedPokemon } from "../types/Pokemon.types";
 import { formatName, normalizeSearchText } from "../utils/utils";
 import { CategoryIcon } from "./CategoryIcon";
 import { TypeBadge } from "./TypeBadge";
+import { useTeamBuilderContext } from "./TeamBuilderContext";
 
-interface Props {
-    pokemon: SelectedPokemon;
-    onUpdate: (updated: SelectedPokemon) => void;
-    onAskPokeCoachForMove: () => void;
-}
+export function TeamSlotMoves({ pokemon, index }: { pokemon: SelectedPokemon, index: number }) {
 
-export function TeamSlotMoves({ pokemon, onUpdate, onAskPokeCoachForMove }: Props) {
+    const {
+            onUpdate,
+            onAskPokeCoachForMove,
+            askingMoveSuggestionIndex,
+        } = useTeamBuilderContext();
+
     const [pokemonMoves, setPokemonMoves] = useState<Move[]>([]);
     const [moveSearch, setMoveSearch] = useState("");
     const [showMoves, setShowMoves] = useState(false);
@@ -29,6 +31,8 @@ export function TeamSlotMoves({ pokemon, onUpdate, onAskPokeCoachForMove }: Prop
     }, [doMoveSearch, pokemon.name, pokemonMoves.length]);
 
     const normalizedMoveSearch = normalizeSearchText(moveSearch);
+    const isAskingPokeCoachForMove = askingMoveSuggestionIndex === index;
+    const disableAskPokeCoachForMove = askingMoveSuggestionIndex !== null;
     const filteredMoves = pokemonMoves.filter(
         (move) => normalizeSearchText(move.name).includes(normalizedMoveSearch) && !pokemon.moves?.includes(move)
     );
@@ -113,9 +117,11 @@ export function TeamSlotMoves({ pokemon, onUpdate, onAskPokeCoachForMove }: Prop
                     </div>
                     <button
                         type="button"
-                        onClick={onAskPokeCoachForMove}
-                        className="shrink-0 rounded-md bg-cyan-500 px-2.5 py-1 text-s font-display font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                        onClick={() => onAskPokeCoachForMove(index)}
+                        disabled={disableAskPokeCoachForMove}
+                        className="inline-flex shrink-0 items-center gap-1 rounded-md bg-cyan-500 px-2.5 py-1 text-s font-display font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                     >
+                        {isAskingPokeCoachForMove && <RotateCcw className="h-3 w-3 animate-spin" />}
                         Ask PokéCoach
                     </button>
                 </div>
