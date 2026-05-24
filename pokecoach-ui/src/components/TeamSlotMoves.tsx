@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { ChevronDown, RotateCcw, X } from "lucide-react";
-import { searchMoves, type Move } from "../lib/move-api";
+import type { Move } from "../lib/move-api";
 import type { SelectedPokemon } from "../types/Pokemon.types";
-import { formatName, normalizeSearchText } from "../utils/utils";
+import { formatName } from "../utils/utils";
 import { CategoryIcon } from "./CategoryIcon";
 import { TypeBadge } from "./TypeBadge";
 import { useTeamBuilderContext } from "./TeamBuilderContext";
+import { usePokemonMoves } from "../hooks/usePokemonMoves";
 
 export function TeamSlotMoves({ pokemon, index }: { pokemon: SelectedPokemon, index: number }) {
 
@@ -15,27 +16,11 @@ export function TeamSlotMoves({ pokemon, index }: { pokemon: SelectedPokemon, in
             askingMoveSuggestionIndex,
         } = useTeamBuilderContext();
 
-    const [pokemonMoves, setPokemonMoves] = useState<Move[]>([]);
-    const [moveSearch, setMoveSearch] = useState("");
+    const { filteredMoves, moveSearch, setMoveSearch } = usePokemonMoves(pokemon);
     const [showMoves, setShowMoves] = useState(false);
 
-    const doMoveSearch = useCallback(async () => {
-        const searchedPokemonMoves = await searchMoves(pokemon.name);
-        setPokemonMoves(searchedPokemonMoves);
-    }, [pokemon.name]);
-
-    useEffect(() => {
-        if (pokemon.name && pokemonMoves.length === 0) {
-            doMoveSearch();
-        }
-    }, [doMoveSearch, pokemon.name, pokemonMoves.length]);
-
-    const normalizedMoveSearch = normalizeSearchText(moveSearch);
     const isAskingPokeCoachForMove = askingMoveSuggestionIndex === index;
     const disableAskPokeCoachForMove = askingMoveSuggestionIndex !== null;
-    const filteredMoves = pokemonMoves.filter(
-        (move) => normalizeSearchText(move.name).includes(normalizedMoveSearch) && !pokemon.moves?.includes(move)
-    );
 
     const removeMove = (move: Move) => {
         onUpdate({ ...pokemon, moves: pokemon.moves.filter((currentMove) => currentMove.id !== move.id) });

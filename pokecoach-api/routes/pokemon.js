@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import supabase from '../db/supabase.js';
-import { searchPokemons } from '../repositories/pokemonServices.js';
+import { getMegaEvolutionsByPokemonId, searchPokemons } from '../repositories/pokemonServices.js';
 
 const router = Router();
 
@@ -89,5 +89,14 @@ router.get('/:id/ability', async (req, res) => {
     if (error) return res.status(500).json({ error });
     res.json(data);
 });
+
+// GET /pokemon/:id/mega-evolutions
+router.get('/:id/mega-evolutions', async (req, res) => {
+    const pokemonId = req.params.id;
+    getMegaEvolutionsByPokemonId(pokemonId)
+        .then((data) => res.json(data))
+        .catch((error) => res.status(500).json({ error }));
+});
+    
 
 export default router;

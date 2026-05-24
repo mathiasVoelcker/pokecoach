@@ -3,28 +3,18 @@ import { z } from 'zod';
 
 const ai = new GoogleGenAI({});
 
-const instructions = `You are an expert in Pokemon Video Game Championships (VGC). 
-                You are here to help people build their Pokemon teams for playing Pokemon Champions, the new game launched.
-                The goal is to build a team of 6 Pokemon that work well together and can win against other teams.
-                The battle format is double battles.
-                You will receive a partial team and must suggest exactly one Pokemon that complements it.
-                Return exactly one SelectedPokemon object.
-                When suggesting the pokemon, also suggest an ability and exactly 4 moves for it.
-                Pick a pokemon that fits well with the existing team and helps in winning battles in pokemon champions.
-                You may only suggest Pokemon that are available in Pokemon Champions, which includes Pokemon from the first 9 generations, but not all of them.
-                When suggesting the pokemon and moves, take into consideration that opponents will only have access to pokemons available in Pokemon Champions as well.
-                Mega evolutions are allowed if the pokemon has one. Consider suggesting a mega evolution if it fits well with the team and the current meta.
-                A team can only have one mega evolution, so don't suggest a mega evolution if the team already has one.
-                If one of the existing pokemons in the team is mega evolution, consider the mega version of that pokemon when suggesting the new pokemon and moves.
-                Use lowercase slug-style names. Do not use any special form names, only base pokemon names. For example, use "charizard" instead of "charizard-mega-x" or "charizard-mega-y".
-                If you want to suggest a mega evolution, set the isMega property to true and still use the base pokemon name. For example, if you want to suggest mega charizard y, set the name to "charizard" and isMega to true.
+const instructions = `You are an expert in Pokemon. 
+                You are here to help people build their Pokemon teams,
+                A pokemon team consists of 6 Pokemon that work well together and can win against other teams.
+                Each pokemon can learn up to 4 moves and has one ability.
+                Use lowercase slug-style names.
                 Return structured data only.`;
 
 const pokecoachResponseSchema = z.object({
   name: z.string(),
   moves: z.array(z.string()).length(4),
   ability: z.string().nullable(),
-  isMega: z.boolean(),
+  megaEvolvesFrom: z.string().nullable(),
   pros: z.array(z.string()),
   cons: z.array(z.string()),
 });
@@ -52,14 +42,16 @@ const pokecoachResponseJsonSchema = {
       type: Type.STRING,
       nullable: true,
     },
-    isMega: {
-      type: Type.BOOLEAN,
+    megaEvolvesFrom: {
+      type: Type.STRING,
+      nullable: true,
+      description: "If suggesting a mega evolution, the name of the base Pokemon. Otherwise null.",
     },
     pros: stringArraySchema,
     cons: stringArraySchema,
   },
-  required: ["name", "moves", "ability", "isMega", "pros", "cons"],
-  propertyOrdering: ["name", "moves", "ability", "isMega", "pros", "cons"],
+  required: ["name", "moves", "ability", "pros", "cons"],
+  propertyOrdering: ["name", "moves", "ability", "megaEvolvesFrom", "pros", "cons"],
 };
 
 function parsePokemonSuggestion(responseText) {
@@ -74,6 +66,12 @@ function parsePokemonSuggestion(responseText) {
 }
 
 export const getPokemonSuggestion = async (selectedPokemonList, availablePokemonNames, excludedPokemonNames) => {
+    const gameSpecificPrompt = `
+      You are an expert in Pokemon Video Game Championships (VGC). 
+      You are here to help people build their Pokemon teams for playing Pokemon Champions, the new game launched.
+      The battle format is double battles.
+    `
+    
     const allowedListMessage = availablePokemonNames.length > 0
         ? `You may only suggest one pokemon from this allowed list: ${JSON.stringify(availablePokemonNames)}.`
         : "Choose any existing pokemon from any generation as the suggestion.";
@@ -81,22 +79,30 @@ export const getPokemonSuggestion = async (selectedPokemonList, availablePokemon
     const previouslyRecommendedMessage = excludedPokemonNames.length > 0
         ? `Do not suggest any of the following pokemon that were previously recommended by PokéCoach: ${JSON.stringify(excludedPokemonNames)}.`
         : "";
+    
+    const anyMega = availablePokemonNames.some(name => name.includes('mega'));
+    const megaEvolutionPrompt = anyMega ? `
+        Mega evolutions are allowed if the pokemon has one. Consider suggesting a mega evolution if it fits well with the team and the current meta.
+        If you want to suggest a mega evolution, set the pokemon name with -mega suffix and include a megaEvolvesFrom property with the name of the base pokemon. For example, if you want to suggest mega charizard y, set the name to "charizard-mega-y" and megaEvolvesFrom to "charizard".
+    ` : "Do not recomend mega evolutions";
+
+    const specialFormPrompt = `
+        If the pokemon has a special form that is relevant to the suggestion (like galarian or alolan forms), you can specify the form in the name using a suffix (for example "meowth-galarian").
+        This also applies to pokemon forms like rotom-wash or aegislash-blade.
+        Only add a pokemon special form if that form is included on the provided list of available pokemon
+    `
+
 
         // todo: move this to db
     const prompt = `
-    You are an expert in Pokemon Video Game Championships (VGC). 
-    You are here to help people build their Pokemon teams for playing Pokemon Champions, the new game launched.
-    The goal is to build a team of 6 Pokemon that work well together and can win against other teams.
-
+      ${gameSpecificPrompt}
 	    Here is the current Pokemon team as a JSON array of SelectedPokemon:
 	        ${JSON.stringify(selectedPokemonList, null, 2)}
-            ${JSON.stringify(allowedListMessage)}
-            ${JSON.stringify(previouslyRecommendedMessage)}
-	        Suggest exactly one additional Pokemon that best complements this team in doubles play.
-        Return only one SelectedPokemon object that matches the schema.
-        Mega evolutions are allowed if the pokemon has one. Consider suggesting a mega evolution if it fits well with the team and the current meta.
-        If you want to suggest a mega evolution, set the isMega property to true and still use the base pokemon name. For example, if you want to suggest mega charizard y, set the name to "charizard" and isMega to true.
-        Use lowercase slug-style names. Do not use any special form names, only base pokemon names. For example, use "charizard" instead of "charizard-mega-x" or "charizard-mega-y".
+            ${allowedListMessage}
+            ${previouslyRecommendedMessage}
+	      Suggest exactly one additional Pokemon that best complements this team.
+        ${megaEvolutionPrompt}
+        ${specialFormPrompt}
         Choose an ability and exactly 4 moves for the suggestion.
         Also include a short list of pros and cons for adding this Pokemon to the team.`;
 

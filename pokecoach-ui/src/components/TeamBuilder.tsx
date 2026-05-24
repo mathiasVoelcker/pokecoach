@@ -59,8 +59,7 @@ export function TeamBuilder() {
           <TeamSlot
             key={`${p.id}-${i}`}
             pokemon={p}
-            index={i}
-            disableMega={false} //todo: manage mega evolution in the database
+            index={i} //todo: manage mega evolution in the database
           />
         ))}
         {Array.from({ length: emptySlots }).map((_, i) => (

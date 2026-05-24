@@ -5,18 +5,17 @@ import { RotateCcw, X } from "lucide-react";
 import { PokemonTypeStats } from "./PokemonTypeStats";
 import { useTeamBuilderContext } from "./TeamBuilderContext";
 import { TeamSlotAbility } from "./TeamSlotAbility";
+import { TeamSlotMegaEvolutions } from "./TeamSlotMegaEvolutions";
 import { TeamSlotMoves } from "./TeamSlotMoves";
 
 interface Props {
     pokemon: SelectedPokemon;
     index: number;
-    disableMega: boolean;
 }
 
 export const TeamSlot = ({
     pokemon,
     index,
-    disableMega,
 }: Props) => {
     const {
         onRemove,
@@ -100,11 +99,17 @@ export const TeamSlot = ({
                 </div>
             </div>
 
-            <TeamSlotAbility
-                pokemon={pokemon}
-                disableMega={disableMega}
-                onUpdate={onUpdate}
-            />
+            <div className="flex items-center justify-between gap-3">
+                <TeamSlotAbility
+                    pokemon={pokemon}
+                    onUpdate={onUpdate}
+                />
+                <TeamSlotMegaEvolutions
+                    pokemon={pokemon}
+                    index={index}
+                />
+            </div>
+            
             <TeamSlotMoves
                 pokemon={pokemon}
                 index={index}

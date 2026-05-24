@@ -8,7 +8,6 @@ export interface PokemonType {
 export interface SelectedPokemon extends Pokemon {
   moves: Move[];
   ability: string | null;
-  isMega: boolean;
   pros: string[];
   cons: string[];
   isPokecoachSuggestion: boolean;

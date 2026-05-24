@@ -6,6 +6,7 @@ export interface TeamBuilderContextValue {
   selectedPokemons: SelectedPokemon[];
   onRemove: (index: number) => void;
   onUpdate: (updated: SelectedPokemon) => void;
+  onUpdateAtIndex: (index: number, updated: SelectedPokemon) => void;
   onClickAddPokemon: () => void;
   onClickUsePokeCoach: () => void;
   onRetryPokeCoachSuggestion: (index: number) => void;

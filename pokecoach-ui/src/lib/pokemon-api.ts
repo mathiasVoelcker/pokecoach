@@ -9,6 +9,8 @@ export interface PokemonType {
 export interface Pokemon {
     id: number;
     name: string;
+    artwork_id: number | null;
+    mega_evolves_from: Pokemon | null;
     first_type: PokemonType;
     second_type: PokemonType | null;
     base_hp: number;
@@ -44,6 +46,17 @@ export async function searchPokemon(pokemonName: string, gameName?: string): Pro
     return response.json();
 }
 
+export async function getMegaEvolutions(pokemonId: number): Promise<Pokemon[]> {
+    const response = await fetch(`${API_BASE_URL}/pokemon/${pokemonId}/mega-evolutions`);
+
+    if (!response.ok) {
+        const error: ApiError = await response.json();
+        throw new Error(error.error ?? `Request failed with status ${response.status}`);
+    }
+
+    return response.json();
+}
+
 export function getArtwork(pokemon: Pokemon): string {
     // const response = await fetch(`${API_BASE_URL}/pokemon/${pokemon.id}/artwork`);
 
@@ -55,5 +68,5 @@ export function getArtwork(pokemon: Pokemon): string {
     // const data = await response.json();
 
     
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`;
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.artwork_id ?? pokemon.id}.png`;
 }

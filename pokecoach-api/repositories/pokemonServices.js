@@ -3,6 +3,8 @@ import supabase from '../db/supabase.js';
 export const POKEMON_BASE_SELECT = `
   id,
   name,
+  artwork_id,
+  mega_evolves_from,
   base_hp,
   base_attack,
   base_defense,
@@ -37,7 +39,8 @@ export async function searchPokemons({ name, gameName = null }) {
 
   const query = supabase
     .from('pokemon')
-    .select(normalizedGameName ? POKEMON_SELECT_WITH_GAME_FILTER : POKEMON_BASE_SELECT);
+    .select(normalizedGameName ? POKEMON_SELECT_WITH_GAME_FILTER : POKEMON_BASE_SELECT)
+    .is('mega_evolves_from', null);
 
   if (normalizedName) {
     query.ilike('name', `%${normalizedName}%`);
@@ -57,5 +60,35 @@ export async function searchPokemons({ name, gameName = null }) {
 }
 
 export async function getAvailablePokemons(gameName = null) {
-  return searchPokemons({ gameName });
+  const normalizedName = typeof name === 'string' ? name.trim() : '';
+  const normalizedGameName = typeof gameName === 'string' ? gameName.trim() : '';
+
+  const query = supabase
+    .from('pokemon')
+    .select(normalizedGameName ? POKEMON_SELECT_WITH_GAME_FILTER : POKEMON_BASE_SELECT)
+
+  if (normalizedGameName) {
+    query.ilike('pokemon_game.game.name', `%${normalizedGameName}%`);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw error;
+  }
+
+  return data ?? [];
+}
+
+export async function getMegaEvolutionsByPokemonId(pokemonId) {
+  const { data, error } = await supabase
+    .from('pokemon')
+    .select(POKEMON_BASE_SELECT)
+    .eq('mega_evolves_from', pokemonId);
+
+  if (error) {
+    throw error;
+  }
+
+  return data ?? [];
 }

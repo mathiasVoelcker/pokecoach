@@ -1,51 +1,24 @@
-import { useCallback, useEffect, useState } from "react";
-import { searchAbilities, type Ability } from "../lib/ability-api";
 import type { SelectedPokemon } from "../types/Pokemon.types";
 import { formatName } from "../utils/utils";
+import { usePokemonAbilities } from "../hooks/usePokemonAbilities";
 
 interface Props {
     pokemon: SelectedPokemon;
-    disableMega: boolean;
     onUpdate: (updated: SelectedPokemon) => void;
 }
 // todo: revisit the disable mega logic. Will get this from database
-export function TeamSlotAbility({ pokemon, disableMega, onUpdate }: Props) {
-    const [pokemonAbilities, setPokemonAbilities] = useState<Ability[]>([]);
-
-    const doAbilitySearch = useCallback(async () => {
-        const searchedPokemonAbilities = await searchAbilities(pokemon.name);
-        setPokemonAbilities(searchedPokemonAbilities);
-    }, [pokemon.name]);
-
-    useEffect(() => {
-        if (pokemon.name && pokemonAbilities.length === 0) {
-            doAbilitySearch();
-        }
-    }, [doAbilitySearch, pokemon.name, pokemonAbilities.length]);
+export function TeamSlotAbility({ pokemon, onUpdate }: Props) {
+    const { pokemonAbilities } = usePokemonAbilities(pokemon.name);
 
     const setAbility = (ability: string) => {
         onUpdate({ ...pokemon, ability });
     };
 
-    const toggleMega = () => {
-        onUpdate({ ...pokemon, isMega: !pokemon.isMega });
-    };
-
     return (
         <div className="mb-3">
-            <div className="mb-1 flex items-center justify-between gap-3">
+            <div className="mb-1 ">
                 <label className="text-[12px] uppercase tracking-wider text-muted-foreground font-display font-semibold block">
                     Ability
-                </label>
-                <label className="flex items-center gap-2 text-[12px] uppercase tracking-wider text-muted-foreground font-display font-semibold cursor-pointer">
-                    <input
-                        type="checkbox"
-                        checked={pokemon.isMega}
-                        onChange={toggleMega}
-                        disabled={disableMega}
-                        className="h-3.5 w-3.5 rounded border-border accent-primary"
-                    />
-                    Mega
                 </label>
             </div>
             <div className="flex flex-wrap gap-1">
