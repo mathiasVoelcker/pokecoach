@@ -3,9 +3,6 @@ import supabase from '../db/supabase.js';
 
 const router = Router();
 
-const DEFAULT_PAGE_SIZE = 100;
-const MAX_PAGE_SIZE = 1025;
-
 // GET /game
 router.get('/', async (req, res) => {
 

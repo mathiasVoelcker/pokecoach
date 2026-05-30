@@ -60,7 +60,6 @@ export async function searchPokemons({ name, gameName = null }) {
 }
 
 export async function getAvailablePokemons(gameName = null) {
-  const normalizedName = typeof name === 'string' ? name.trim() : '';
   const normalizedGameName = typeof gameName === 'string' ? gameName.trim() : '';
 
   const query = supabase

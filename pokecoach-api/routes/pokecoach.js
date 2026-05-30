@@ -1,10 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import {
-  getAvailablePokemons,
-} from '../repositories/pokemonServices.js';
 import { getMovesByNames } from '../repositories/moveService.js';
-import { getMoveSuggestion, getPokemonSuggestion } from '../agents/geminiAgent.js';
+import { getPokecoachAgent } from '../agents/geminiAgent.js';
 
 
 const router = Router();
@@ -91,16 +88,16 @@ router.post('/pokemon', async (req, res) => {
   }
 
   try {
-    const availablePokemons = await getAvailablePokemons(selectedGameName);
+    const agent = await getPokecoachAgent(selectedGameName);
 
-    const availablePokemonNames = availablePokemons.map((pokemon) => pokemon.name)
-
-    const pokecoachResponse = await getPokemonSuggestion(
+    const pokecoachResponse = await agent.suggestPokemon({
       selectedPokemonList,
-      selectedGameName ? availablePokemonNames : [], // if list is empty, the agent can choose any pokemon, otherwise it must choose from the list
-      previouslyRecommendedPokemon
+      previouslyRecommendedPokemon,
+    });
+    const suggestedPokemon = await buildSelectedPokemonFromResponse(
+      pokecoachResponse,
+      agent.availablePokemons
     );
-    const suggestedPokemon = await buildSelectedPokemonFromResponse(pokecoachResponse, availablePokemons);
 
     return res.json(suggestedPokemon);
   } catch (error) {
@@ -118,11 +115,19 @@ router.post('/move', async (req, res) => {
     const requestBody = req.body;
     const selectedPokemonList = requestBody?.team;
     const pokemonIdToAskForMove = requestBody?.pokemonIdToAskForMove;
+
+    if (!Array.isArray(selectedPokemonList)) {
+      return res.status(400).json({
+        error: 'Request body must be an array of SelectedPokemon or an object with a team array.',
+      });
+    }
+
+    const agent = await getPokecoachAgent(requestBody?.game);
     // todo: evaluate in the long run if this approach throws errors, and if we need to query for move names upfront
-    const pokecoachRecommendedMove = await getMoveSuggestion(
+    const pokecoachRecommendedMove = await agent.suggestMove({
       selectedPokemonList,
-      pokemonIdToAskForMove
-    );
+      pokemonIdToAskForMove,
+    });
 
     const recommendedMove = await getMovesByNames([pokecoachRecommendedMove]);
     if (recommendedMove.length === 0) {
