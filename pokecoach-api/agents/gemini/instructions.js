@@ -1,9 +1,8 @@
 const baseInstructions = `You are an expert in Pokemon.
 You are here to help people build their Pokemon teams.
 A pokemon team consists of 6 Pokemon that work well together and can win against other teams.
+Choose Pokemon for a general Pokemon team.
 `;
-
-const defaultGameInstruction = `Choose Pokemon for a general Pokemon team.`;
 
 const gameAgentConfigs = {
   pokemon_champions: {
@@ -42,7 +41,7 @@ export function getGameAgentConfig(gameName) {
   const normalizedGameName = normalizeGameName(gameName);
 
   return gameAgentConfigs[normalizedGameName] ?? {
-    instruction: defaultGameInstruction,
+    instruction: baseInstructions,
   };
 }
 

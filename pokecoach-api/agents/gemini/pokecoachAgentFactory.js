@@ -25,14 +25,14 @@ export function createPokecoachAgent({ gameName, availability }) {
         : "";
 
       const prompt = `
-        Here is the current Pokemon team as a JSON array of SelectedPokemon:
-        ${JSON.stringify(selectedPokemonList, null, 2)}
-
-        ${previouslyRecommendedMessage}
-
         Suggest exactly one additional Pokemon that best complements this team.
         Choose an ability and exactly 4 moves for the suggestion.
-        Also include a short list of pros and cons for adding this Pokemon to the team.`;
+        Use lowercase slug-style names.
+        Also include a short list of pros and cons for adding this Pokemon to the team.
+        Here is the current Pokemon team as a JSON array of SelectedPokemon:
+        ${JSON.stringify(selectedPokemonList, null, 2)}
+        ${previouslyRecommendedMessage}
+        `;
 
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
