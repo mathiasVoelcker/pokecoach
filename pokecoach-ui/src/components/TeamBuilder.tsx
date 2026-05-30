@@ -1,5 +1,6 @@
 import { TeamSlot } from "./TeamSlot";
 import { useTeamBuilderContext } from "./TeamBuilderContext";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 export function TeamBuilder() {
   const {
@@ -40,9 +41,10 @@ export function TeamBuilder() {
             type="button"
             disabled={!canAddPokemon || isUsingPokeCoach || retryingSuggestionIndex !== null}
             onClick={onClickUsePokeCoach}
-            className="rounded-lg font-bold bg-cyan-500 px-4 py-2 text-sm font-display text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex min-w-36 items-center justify-center gap-2 rounded-lg bg-cyan-500 px-4 py-2 text-sm font-display font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Use PokéCoach
+            {isUsingPokeCoach && <LoadingSpinner className="h-3.5 w-3.5" label="Getting PokéCoach suggestion" />}
+            {isUsingPokeCoach ? "Thinking..." : "Use PokéCoach"}
           </button>
           <button
             type="button"
