@@ -18,20 +18,24 @@ const Index = () => {
     const [askingMoveSuggestionIndex, setAskingMoveSuggestionIndex] = useState<number | null>(null);
     const [previousPokecoachRecommendations, setPreviousPokecoachRecommendations] = useState<string[]>([]);
     const [games, setGames] = useState<Game[]>([]);
+    const [loadingGames, setLoadingGames] = useState(false);
     const [selectedGameName, setSelectedGameName] = useState("");
 
     useEffect(() => {
         const loadGames = async () => {
+            setLoadingGames(true);
             try {
                 const availableGames = await getGames();
                 setGames(availableGames);
             } catch (error) {
                 const message = error instanceof Error ? error.message : "Failed to load games.";
                 toast.error(message);
+            } finally {
+                setLoadingGames(false);
             }
         };
         loadGames();
-    }, [setGames]);
+    }, [setGames, setLoadingGames]);
 
     const addToTeam = useCallback(
         (pokemon: Pokemon) => {
@@ -184,6 +188,7 @@ const Index = () => {
         askingMoveSuggestionIndex,
         showPokemonSearch,
         games,
+        loadingGames,
         selectedGameName,
         onSelectedGameNameChange: setSelectedGameName,
         onAskPokeCoachForMove,
@@ -199,6 +204,7 @@ const Index = () => {
         askingMoveSuggestionIndex,
         showPokemonSearch,
         games,
+        loadingGames,
         selectedGameName,
         onAskPokeCoachForMove,
     ]);

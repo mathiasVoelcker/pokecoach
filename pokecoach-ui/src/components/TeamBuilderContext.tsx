@@ -16,6 +16,7 @@ export interface TeamBuilderContextValue {
   askingMoveSuggestionIndex: number | null;
   showPokemonSearch: boolean;
   games: Game[];
+  loadingGames: boolean;
   selectedGameName: string;
   onSelectedGameNameChange: (gameName: string) => void;
   onAskPokeCoachForMove: (index: number) => void;

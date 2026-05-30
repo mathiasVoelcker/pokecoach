@@ -12,10 +12,20 @@ export function TeamBuilder() {
     retryingSuggestionIndex,
     showPokemonSearch,
     games,
+    loadingGames,
     selectedGameName,
     onSelectedGameNameChange,
   } = useTeamBuilderContext();
   const emptySlots = 6 - selectedPokemons.length;
+
+  const addPokemonButtonDisabled = !canAddPokemon 
+    || loadingGames;
+
+  const usePokeCoachButtonDisabled = !canAddPokemon
+    || isUsingPokeCoach
+    || retryingSuggestionIndex !== null
+    || loadingGames;
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex lg:flex-row flex-col items-center justify-between gap-3 mb-4">
@@ -23,23 +33,32 @@ export function TeamBuilder() {
           {/* <Users className="w-5 h-5 text-accent" /> */}
           <h2 className="font-display text-xl font-bold">Your Team</h2>
           <span className="text-muted-foreground text-sm font-display">{selectedPokemons.length}/6</span>
-          <select
-            value={selectedGameName}
-            onChange={(e) => onSelectedGameNameChange(e.target.value)}
-            className="rounded-lg border border-border bg-card px-3 py-2 text-sm font-display text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-          >
-            <option value="">All Games</option>
-            {games.map((game) => (
-              <option key={game.id} value={game.name}>
-                {game.name}
-              </option>
-            ))}
-          </select>
+          <div className="flex min-w-44 items-center gap-2">
+            <select
+              value={selectedGameName}
+              onChange={(e) => onSelectedGameNameChange(e.target.value)}
+              disabled={loadingGames}
+              className="min-w-0 flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm font-display text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="">All Games</option>
+              {games.map((game) => (
+                <option key={game.id} value={game.name}>
+                  {game.name}
+                </option>
+              ))}
+            </select>
+            {loadingGames && (
+              <LoadingSpinner
+                className="h-4 w-4 text-muted-foreground"
+                label="Loading games"
+              />
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
-            disabled={!canAddPokemon || isUsingPokeCoach || retryingSuggestionIndex !== null}
+            disabled={usePokeCoachButtonDisabled}
             onClick={onClickUsePokeCoach}
             className="inline-flex min-w-36 items-center justify-center gap-2 rounded-lg bg-cyan-500 px-4 py-2 text-sm font-display font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
@@ -49,7 +68,7 @@ export function TeamBuilder() {
           <button
             type="button"
             onClick={onClickAddPokemon}
-            disabled={!canAddPokemon}
+            disabled={addPokemonButtonDisabled}
             className="rounded-lg font-bold bg-primary px-4 py-2 text-sm font-display text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Add Pokemon
