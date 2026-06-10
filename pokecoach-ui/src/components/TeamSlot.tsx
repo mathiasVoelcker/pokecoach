@@ -3,6 +3,7 @@ import { formatName } from "../utils/utils";
 import type { SelectedPokemon } from "../types/Pokemon.types";
 import { RotateCcw, X } from "lucide-react";
 import { PokemonTypeStats } from "./PokemonTypeStats";
+import { SuggestionDetail } from "./SuggestionDetail";
 import { useTeamBuilderContext } from "./TeamBuilderContext";
 import { TeamSlotAbility } from "./TeamSlotAbility";
 import { TeamSlotMegaEvolutions } from "./TeamSlotMegaEvolutions";
@@ -50,38 +51,16 @@ export const TeamSlot = ({
                     <PokemonTypeStats pokemon={pokemon} />
                     {pokemon.isPokecoachSuggestion && (
                         <div className="mt-2 flex flex-wrap items-center gap-2">
-                            <div className="relative group/pros">
-                                <span className="cursor-default rounded-md bg-emerald-500/15 px-2 py-0.5 text-[11px] font-display font-semibold uppercase tracking-wider text-emerald-300">
-                                    Pros
-                                </span>
-                                <div className="pointer-events-none absolute left-0 top-full z-20 mt-2 hidden w-56 rounded-md border border-border bg-popover p-3 text-xs text-popover-foreground shadow-lg group-hover/pros:block">
-                                    {pokemon.pros.length > 0 ? (
-                                        <ul className="space-y-1">
-                                            {pokemon.pros.map((pro) => (
-                                                <li key={pro}>{pro}</li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <p>No pros available.</p>
-                                    )}
-                                </div>
-                            </div>
-                            <div className="relative group/cons">
-                                <span className="cursor-default rounded-md bg-rose-500/15 px-2 py-0.5 text-[11px] font-display font-semibold uppercase tracking-wider text-rose-300">
-                                    Cons
-                                </span>
-                                <div className="pointer-events-none absolute left-0 top-full z-20 mt-2 hidden w-56 rounded-md border border-border bg-popover p-3 text-xs text-popover-foreground shadow-lg group-hover/cons:block">
-                                    {pokemon.cons.length > 0 ? (
-                                        <ul className="space-y-1">
-                                            {pokemon.cons.map((con) => (
-                                                <li key={con}>{con}</li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <p>No cons available.</p>
-                                    )}
-                                </div>
-                            </div>
+                            <SuggestionDetail
+                                label="Pros"
+                                items={pokemon.pros}
+                                tone="pros"
+                            />
+                            <SuggestionDetail
+                                label="Cons"
+                                items={pokemon.cons}
+                                tone="cons"
+                            />
                             {pokemon.isPokecoachSuggestion && (
                                 <button
                                     type="button"
