@@ -6,18 +6,28 @@ import {
 import {
   parsePokemonSuggestion,
   pokecoachResponseJsonSchema,
+  pokecoachEvalResponseJsonSchema
 } from './schemas.js';
 
-export function createPokecoachAgent({ gameName, availability }) {
+export function createPokecoachAgent({
+  gameName: name,
+  agent_instructions,
+  allow_mega,
+  pokemon_game,
+}) {
+  const availablePokemonNames = (pokemon_game ?? [])
+    .map(({ pokemon }) => pokemon?.name)
+    .filter(Boolean);
+
   const pokemonSuggestionInstruction = buildPokemonSuggestionInstruction({
-    gameName,
-    allowedListMessage: availability.allowedListMessage,
-    anyMega: availability.anyMega,
+    agentInstructions: agent_instructions,
+    allowMega: allow_mega ?? true,
+    availablePokemonNames,
   });
-  const moveSuggestionInstruction = buildMoveSuggestionInstruction(gameName);
+  const moveSuggestionInstruction = buildMoveSuggestionInstruction(agent_instructions);
 
   return {
-    availablePokemons: availability.availablePokemons,
+    gameName: name,
 
     async suggestPokemon({ selectedPokemonList, previouslyRecommendedPokemon = [] }) {
       const previouslyRecommendedMessage = previouslyRecommendedPokemon.length > 0
@@ -73,5 +83,28 @@ export function createPokecoachAgent({ gameName, availability }) {
 
       return response.text;
     },
+
+    async evaluateTeam({ selectedPokemonList }) {
+
+      // TODO: evaluate if we should pass the game on the prompt, or if just having it on the agent is fine
+      const prompt = `
+        Here is the current Pokemon team as a JSON array of SelectedPokemon:
+        ${JSON.stringify(selectedPokemonList, null, 2)}
+
+        Evaluate this team. On the response, give a grade from 0 to 10, a brief description, how you would use the team, and a list of pros and. cons.
+        Also recommend what would you change on this team. Don't mention a specific pokemon, but a specific strategy or moves to add or remove
+        `
+        const response = await ai.models.generateContent({
+          model: "gemini-3-flash-preview",
+          contents: prompt,
+          config: {
+            systemInstruction: agent_instructions,
+            responseMimeType: "application/json",
+            responseSchema: pokecoachEvalResponseJsonSchema,
+          }
+        })
+        
+        return JSON.parse(response.text);
+    }
   };
 }

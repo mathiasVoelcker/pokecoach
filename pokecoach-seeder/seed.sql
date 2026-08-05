@@ -148,7 +148,7 @@ INSERT INTO type_damage_modifier (modifier, attacking_type, defending_type) VALU
 -- Pokemon seed
 -- Generated on 2026-07-25T15:46:42.682Z
 
-INSERT INTO pokemon (name, first_type, second_type, base_hp, base_attack, base_defense, base_special_attack, base_special_defense, base_speed, mega_evolves_from, artwork_id) VALUES
+INSERT INTO pokemon (name, first_type, second_type, base_hp, base_attack, base_defense, base_special_attack, base_special_defense, base_speed, mega_evolution, artwork_id) VALUES
   ('bulbasaur', (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'poison'), 45, 49, 49, 65, 65, 45, NULL, 1),
   ('ivysaur', (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'poison'), 60, 62, 63, 80, 80, 60, NULL, 2),
   ('venusaur', (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'poison'), 80, 82, 83, 100, 100, 80, NULL, 3),

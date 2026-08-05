@@ -45,6 +45,37 @@ export const pokecoachResponseJsonSchema = {
   propertyOrdering: ["name", "moves", "ability", "megaEvolvesFrom", "pros", "cons"],
 };
 
+export const pokecoachEvalResponseJsonSchema = {
+  type: Type.OBJECT,
+  properties: {
+    grade: {
+      type: Type.NUMBER,
+      description: "Grade for the team, from 0 to 10, allowing decimals"
+    },
+    overallTeamDescription: {
+      type: Type.STRING,
+      description: "A brief description on how the team works"
+    },
+    pros: {
+      ...stringArraySchema,
+      description: "list the strengths of this team"
+    },
+    cons: {
+      ...stringArraySchema,
+      description: "list the weakness of this team"
+    },
+    howToPlayIt: {
+      type: Type.STRING,
+      description: "a brief description on how you would use this team to play the game"
+    },
+    whatShouldChange: {
+      type: Type.STRING,
+      description: "A brief description what would you change on this team"
+    }
+  },
+  required: ["grade", "overallTeamDescription", "howToPlayIt", "pros", "cons"],
+}
+
 export function parsePokemonSuggestion(responseText) {
   const parsedResponse = JSON.parse(responseText);
   const suggestion = Array.isArray(parsedResponse) ? parsedResponse[0] : parsedResponse;

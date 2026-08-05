@@ -1,16 +1,12 @@
+import { getGameCacheKey } from '../common/utils.js';
 import { getAvailablePokemons } from '../repositories/pokemonServices.js';
-import { buildAllowedListMessage, normalizeGameName } from '../agents/gemini/instructions.js';
+import { buildAllowedListMessage } from '../agents/gemini/instructions.js';
 
 const availabilityByGameName = new Map();
 
-function getCacheKey(gameName) {
-  const normalizedGameName = normalizeGameName(gameName);
-  return normalizedGameName || '__all__';
-}
-
 // todo: refactor this, should belong to repositories folder
 export async function getGamePokemonAvailability(gameName = null) {
-  const cacheKey = getCacheKey(gameName);
+  const cacheKey = getGameCacheKey(gameName);
 
   if (availabilityByGameName.has(cacheKey)) {
     return availabilityByGameName.get(cacheKey);

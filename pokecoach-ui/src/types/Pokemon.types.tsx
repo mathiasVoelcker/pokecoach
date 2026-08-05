@@ -13,6 +13,15 @@ export interface SelectedPokemon extends Pokemon {
   isPokecoachSuggestion: boolean;
 }
 
+export interface TeamEvalResponse {
+  grade: number;
+  overallTeamDescription: string;
+  pros: string[];
+  cons: string[];
+  howToPlayIt: string;
+  whatShouldChange: string;
+}
+
 export interface PokecoachRequest {
   team: SelectedPokemon[];
   game: string | null;
