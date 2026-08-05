@@ -1,6 +1,5 @@
 import { TeamSlot } from "./TeamSlot";
 import { useTeamBuilderContext } from "./TeamBuilderContext";
-import { LoadingSpinner } from "./LoadingSpinner";
 import { TeamBuilderHeader } from "./TeamBuilderHeader";
 
 export function TeamBuilder() {

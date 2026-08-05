@@ -1,5 +1,4 @@
 import { CheckCircle2, Lightbulb, ShieldCheck, Swords, X } from "lucide-react";
-import { useEffect } from "react";
 import type { TeamEvalResponse } from "../types/Pokemon.types";
 
 interface TeamEvaluationDialogProps {
@@ -44,17 +43,6 @@ function EvaluationList({ items, emptyMessage }: { items: string[]; emptyMessage
 }
 
 export function TeamEvaluationDialog({ evaluation, onClose }: TeamEvaluationDialogProps) {
-  // useEffect(() => {
-  //   if (!evaluation) return;
-
-  //   const onKeyDown = (event: KeyboardEvent) => {
-  //     if (event.key === "Escape") onClose();
-  //   };
-
-  //   window.addEventListener("keydown", onKeyDown);
-  //   return () => window.removeEventListener("keydown", onKeyDown);
-  // }, [evaluation, onClose]);
-
   if (!evaluation) { 
     return null
   }
