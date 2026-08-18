@@ -8,6 +8,7 @@ import { useTeamBuilderContext } from "./TeamBuilderContext";
 import { TeamSlotAbility } from "./TeamSlotAbility";
 import { TeamSlotMegaEvolutions } from "./TeamSlotMegaEvolutions";
 import { TeamSlotMoves } from "./TeamSlotMoves";
+import { TeamSlotItem } from "./TeamSlotItem";
 
 interface Props {
     pokemon: SelectedPokemon;
@@ -37,6 +38,7 @@ export const TeamSlot = ({
             >
                 <X className="w-3 h-3" />
             </button>
+            <TeamSlotItem pokemon={pokemon} onUpdate={onUpdate} />
 
             <div className="flex gap-3 mb-3">
                 <img

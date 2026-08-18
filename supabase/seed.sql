@@ -1,5 +1,5 @@
 -- Pokemon types + damage modifiers insert
--- Generated on 2026-07-25T15:45:52.989Z
+-- Generated on 2026-08-16T01:47:52.855Z
 
 INSERT INTO type (name, color) VALUES
   ('normal', '#A8A878'),
@@ -146,7 +146,7 @@ INSERT INTO type_damage_modifier (modifier, attacking_type, defending_type) VALU
 
 
 -- Pokemon seed
--- Generated on 2026-07-25T15:46:42.682Z
+-- Generated on 2026-08-16T01:48:25.034Z
 
 INSERT INTO pokemon (name, first_type, second_type, base_hp, base_attack, base_defense, base_special_attack, base_special_defense, base_speed, mega_evolves_from, artwork_id) VALUES
   ('bulbasaur', (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'poison'), 45, 49, 49, 65, 65, 45, NULL, 1),
@@ -1468,7 +1468,7 @@ INSERT INTO pokemon (name, first_type, second_type, base_hp, base_attack, base_d
 
 
 -- Ability + pokemon_abilities seed
--- Generated on 2026-07-25T15:47:37.092Z
+-- Generated on 2026-08-16T01:48:58.988Z
 
 INSERT INTO ability (name) VALUES
   ('stench'),
@@ -4638,7 +4638,7 @@ INSERT INTO pokemon_abilities (pokemon_id, ability_id) VALUES
 
 
 -- Move + pokemon_moves seed
--- Generated on 2026-07-25T15:49:13.882Z
+-- Generated on 2026-08-16T01:49:42.391Z
 
 INSERT INTO move (name, type, base_power, category) VALUES
   ('pound', (SELECT id FROM type WHERE name = 'normal'), 40, 'physical'),
@@ -98317,12 +98317,12 @@ JOIN move_ids   m ON m.name  = data.move_name;
 -- Sources:
 -- https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_in_Pok%C3%A9mon_Champions
 -- https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_FireRed_and_LeafGreen
--- Generated on 2026-07-25T15:49:14.538Z
+-- Generated on 2026-08-16T01:49:42.879Z
 
-INSERT INTO game (name) VALUES
-  ('Pokemon Champions'),
-  ('Pokemon Fire Red'),
-  ('Pokemon Leaf Green');
+INSERT INTO game (name, agent_instructions, allow_mega) VALUES
+  ('Pokemon Champions', 'You are an expert in Pokemon Video Game Championships (VGC). You are here to help people build their Pokemon teams for playing Pokemon Champions. The battle format is double battles.', TRUE),
+  ('Pokemon Fire Red', 'You are an expert in Pokemon Fire Red. You are here to help people build practical in-game teams for a Pokemon Fire Red playthrough. The battle format is single battles.', FALSE),
+  ('Pokemon Leaf Green', 'You are an expert in Pokemon Leaf Green. You are here to help people build practical in-game teams for a Pokemon Leaf Green playthrough. The battle format is single battles.', FALSE);
 
 WITH game_pokemon (pokedex_number, game_name) AS (VALUES
   (3, 'Pokemon Champions'),
@@ -98856,12 +98856,20 @@ WITH game_pokemon (pokedex_number, game_name) AS (VALUES
   (298, 'Pokemon Leaf Green')
 ), game_ids AS (
   SELECT id, name FROM game
+), game_base_pokemon AS (
+  SELECT pokemon.name AS base_pokemon_name, game_ids.id AS game_id
+  FROM game_pokemon
+  JOIN pokemon ON pokemon.artwork_id = game_pokemon.pokedex_number
+  JOIN game_ids ON game_ids.name = game_pokemon.game_name
 )
 INSERT INTO pokemon_game (pokemon_id, game_id)
-SELECT pokemon.id, game_ids.id
-FROM game_pokemon
-JOIN pokemon ON pokemon.artwork_id = game_pokemon.pokedex_number
-JOIN game_ids ON game_ids.name = game_pokemon.game_name;
+SELECT pokemon.id, game_base_pokemon.game_id
+FROM game_base_pokemon
+JOIN pokemon ON pokemon.name = game_base_pokemon.base_pokemon_name
+  OR (
+    pokemon.name LIKE game_base_pokemon.base_pokemon_name || '-%'
+    AND pokemon.mega_evolves_from IS NULL
+  );
 
 INSERT INTO pokemon_game (pokemon_id, game_id)
 SELECT pokemon.id, game.id
@@ -98873,3 +98881,244 @@ SELECT pokemon.id, game.id
 FROM pokemon
 JOIN game ON game.name = 'Pokemon Leaf Green'
 WHERE pokemon.name = 'deoxys-defense';
+
+-- Mega forms are available only in games that explicitly support them.
+INSERT INTO pokemon_game (pokemon_id, game_id)
+SELECT pokemon.id, game.id
+FROM pokemon
+CROSS JOIN game
+WHERE pokemon.mega_evolves_from IS NOT NULL
+  AND game.allow_mega = TRUE;
+
+
+-- Holdable item seed
+-- Sources:
+-- https://pokeapi.co/api/v2/item-attribute/holdable
+-- https://pokeapi.co/api/v2/item-attribute/holdable-active
+-- Generated on 2026-08-16T01:49:47.597Z
+
+INSERT INTO item (name, description) VALUES
+  ('adamant-orb', 'Boosts the damage from Dialga’s Dragon-type and Steel-type moves by 20%.'),
+  ('aguav-berry', 'Held: Consumed at 1/2 max HP to restore 1/8 max HP. Confuses Pokémon that dislike bitter flavor.'),
+  ('amulet-coin', 'Held: Doubles the money earned from a battle. Does not stack with Luck Incense.'),
+  ('antidote', 'Cures poison.'),
+  ('apicot-berry', 'Held: Consumed at 1/4 max HP to boost Special Defense.'),
+  ('aspear-berry', 'Held: Consumed when frozen to cure frozen.'),
+  ('awakening', 'Cures sleep.'),
+  ('babiri-berry', 'Held: Consumed when struck by a super-effective Steel-type attack to halve the damage.'),
+  ('berry-juice', 'Restores 20 HP.'),
+  ('big-root', 'Held: Increases HP recovered from draining moves, Ingrain, and Aqua Ring by 3/10 (30%).'),
+  ('black-belt', 'Held: Fighting-Type moves from holder do 20% more damage.'),
+  ('black-flute', 'Halves the wild Pokémon encounter rate.'),
+  ('black-glasses', 'Held: Dark-Type moves from holder do 20% more damage.'),
+  ('black-sludge', 'Held: Poison-type holder recovers 1/16 (6.25%) max HP each turn. Non-Poison-Types take 1/8 (12.5%) max HP damage.'),
+  ('blue-flute', 'Cures sleep.'),
+  ('blue-scarf', 'Raises the holder’s Beauty while in a contest.'),
+  ('bright-powder', 'Held: Increases the holder’s evasion by 1/9 (11 1/9%).'),
+  ('burn-heal', 'Cures a burn.'),
+  ('calcium', 'Raises Special Attack effort and happiness.'),
+  ('carbos', 'Raises Speed effort and happiness.'),
+  ('charcoal', 'Held: Fire-Type moves from holder do 20% more damage.'),
+  ('charti-berry', 'Held: Consumed when struck by a super-effective Rock-type attack to halve the damage.'),
+  ('cheri-berry', 'Held: Consumed when paralyzed to cure paralysis.'),
+  ('cherish-ball', 'Tries to catch a wild Pokémon.'),
+  ('chesto-berry', 'Held: Consumed when asleep to cure sleep.'),
+  ('chilan-berry', 'Held: Consumed when struck by a Normal-type attack to halve the damage.'),
+  ('choice-band', 'Held: Increases Attack by 50%, but restricts the holder to only one move.'),
+  ('choice-scarf', 'Held: Increases Speed by 50%, but restricts the holder to only one move.'),
+  ('choice-specs', 'Held: Increases Special Attack by 50%, but restricts the holder to only one move.'),
+  ('chople-berry', 'Held: Consumed when struck by a super-effective Fighting-type attack to halve the damage.'),
+  ('cleanse-tag', 'Prevents wild encounters of level lower than your party’s lead Pokémon.'),
+  ('coba-berry', 'Held: Consumed when struck by a super-effective Flying-type attack to halve the damage.'),
+  ('colbur-berry', 'Held: Consumed when struck by a super-effective Dark-type attack to halve the damage.'),
+  ('custap-berry', 'Held: Consumed at 1/4 max HP when using a move to go first.'),
+  ('damp-rock', 'Held: Rain Dance by the holder lasts 8 rounds instead of 5.'),
+  ('deep-sea-scale', 'Doubles Clamperl’s Special Defense. Traded on a Clamperl: Holder evolves into Gorebyss.'),
+  ('deep-sea-tooth', 'Doubles Clamperl’s Special Attack. Traded on a Clamperl: Holder evolves into Huntail.'),
+  ('destiny-knot', 'Held: Infatuates opposing Pokémon when holder is inflicted with infatuation.'),
+  ('dire-hit', 'Increases the chance of a critical hit in battle.  Raises happiness.'),
+  ('dive-ball', 'Tries to catch a wild Pokémon. Success rate is 3.5× when underwater, fishing, or surfing.'),
+  ('draco-plate', 'Held: Dragon-Type moves from holder do 20% more damage. Changes Arceus’s and Judgment’s type to Dragon.'),
+  ('dragon-fang', 'Held: Dragon-Type moves from holder do 20% more damage.'),
+  ('dread-plate', 'Held: Dark-Type moves from holder do 20% more damage. Changes Arceus’s and Judgment’s type to Dark.'),
+  ('dusk-ball', 'Tries to catch a wild Pokémon.  Success rate is 3.5× at night and in caves.'),
+  ('earth-plate', 'Held: Ground-Type moves from holder do 20% more damage. Changes Arceus’s and Judgment’s type to Ground.'),
+  ('elixir', 'Restores 10 PP for each move.'),
+  ('energy-powder', 'Restores 50 HP, but lowers happiness.'),
+  ('energy-root', 'Restores 200 HP, but lowers happiness.'),
+  ('enigma-berry', 'Held: Consumed when struck by a super-effective attack to restore 1/4 max HP.'),
+  ('ether', 'Restores 10 PP for one move.'),
+  ('everstone', 'Held: Prevents level-based evolution from occuring.'),
+  ('exp-share', 'Held: Half the experience from a battle is split between Pokémon holding this item.'),
+  ('expert-belt', 'Held: Holder’s Super Effective moves do 20% extra damage.'),
+  ('figy-berry', 'Held: Consumed at 1/2 max HP to restore 1/8 max HP. Confuses Pokémon that dislike spicy flavor.'),
+  ('fist-plate', 'Held: Fighting-Type moves from holder do 20% more damage. Changes Arceus’s and Judgment’s type to Fighting.'),
+  ('flame-orb', 'Held: Inflicts Burn on the holder at the end of the turn. Activates after Burn damage would occur.'),
+  ('flame-plate', 'Held: Fire-Type moves from holder do 20% more damage. Changes Arceus’s and Judgment’s type to Fire.'),
+  ('fluffy-tail', 'Ends a wild battle.'),
+  ('focus-band', 'Held: Holder has 10% chance to survive attacks or self-inflicted damage at 1 HP.'),
+  ('focus-sash', 'Held: Holder survives any single-hit attack at 1 HP if at max HP, then the item is consumed.'),
+  ('fresh-water', 'Restores 50 HP.'),
+  ('full-heal', 'Cures any status ailment and confusion.'),
+  ('full-incense', 'Held: Holder moves last in its priority bracket. Breeding: Snorlax begets a Munchlax Egg.'),
+  ('full-restore', 'Restores HP to full and cures any status ailment and confusion.'),
+  ('ganlon-berry', 'Held: Consumed at 1/4 max HP to boost Defense.'),
+  ('great-ball', 'Tries to catch a wild Pokémon.  Success rate is 1.5×.'),
+  ('green-scarf', 'Raises the holder’s Smartness while in a contest.'),
+  ('grip-claw', 'Held: Holder’s multi-turn trapping moves last 5 turns.'),
+  ('guard-spec', 'Prevents stat changes in battle for five turns in battle.  Raises happiness.'),
+  ('haban-berry', 'Held: Consumed when struck by a super-effective Dragon-type attack to halve the damage.'),
+  ('hard-stone', 'Held: Rock-Type moves from holder do 20% more damage.'),
+  ('heal-ball', 'Tries to catch a wild Pokémon.  Caught Pokémon are immediately healed.'),
+  ('heal-powder', 'Cures any status ailment, but lowers happiness.'),
+  ('heat-rock', 'Held: Sunny Day by the holder lasts 8 rounds instead of 5.'),
+  ('hp-up', 'Raises HP effort and happiness.'),
+  ('hyper-potion', 'Restores 200 HP.'),
+  ('iapapa-berry', 'Held: Consumed at 1/2 max HP to restore 1/8 max HP. Confuses Pokémon that dislike sour flavor.'),
+  ('ice-heal', 'Cures freezing.'),
+  ('icicle-plate', 'Held: Ice-Type moves from holder do 20% more damage. Changes Arceus’s and Judgment’s type to Ice.'),
+  ('icy-rock', 'Held: Hail by the holder lasts 8 rounds instead of 5.'),
+  ('insect-plate', 'Held: Bug-Type moves from holder do 20% more damage. Changes Arceus’s and Judgment’s type to Bug.'),
+  ('iron', 'Raises Defense effort and happiness.'),
+  ('iron-ball', 'Held: Holder’s Speed is halved. Negates all Ground-type immunities, and makes Flying-types take neutral damage from Ground-type moves. Arena Trap. Spikes, and Toxic Spikes affect the holder.'),
+  ('iron-plate', 'Held: Steel-Type moves from holder do 20% more damage. Changes Arceus’s and Judgment’s type to Steel.'),
+  ('jaboca-berry', 'Held: Consumed to deal 1/8 attacker’s max HP when holder is struck by a physical attack.'),
+  ('kasib-berry', 'Held: Consumed when struck by a super-effective Ghost-type attack to halve the damage.'),
+  ('kebia-berry', 'Held: Consumed when struck by a super-effective Poison-type attack to halve the damage.'),
+  ('kings-rock', 'Held: Damaging moves gain a 10% chance to make their target flinch. Traded on a Poliwhirl: Holder evolves into Politoed. Traded on a Slowpoke: Holder evolves into Slowking.'),
+  ('lagging-tail', 'Held: Holder moves last in its priority bracket.'),
+  ('lansat-berry', 'Held: Consumed at 1/4 max HP to boost critical hit ratio by two stages.'),
+  ('lava-cookie', 'Cures any status ailment and confusion.'),
+  ('lax-incense', 'Held: Holder’s evasion is increased by 5%. Breeding: Wobbuffet begets a Wynaut Egg.'),
+  ('leftovers', 'Held: Restores 1/16 (6.25%) holder’s max HP at the end of each turn.'),
+  ('lemonade', 'Restores 80 HP.'),
+  ('leppa-berry', 'Held: Consumed when a move runs out of PP to restore its PP by 10.'),
+  ('liechi-berry', 'Held: Consumed at 1/4 max HP to boost Attack.'),
+  ('life-orb', 'Held: Holder’s moves inflict 30% extra damage, but cost 10% max HP.'),
+  ('light-ball', 'Doubles Pikachu’s Attack and Special Attack. Breed on Pikachu or Raichu: Pichu Egg will have Volt Tackle.'),
+  ('light-clay', 'Held: Light Screen and Reflect used by the holder last 8 rounds instead of 5.'),
+  ('linking-cord', 'Allows a Pokemon whose evolution is usually triggered by trading to evolve'),
+  ('luck-incense', 'Held: Doubles the money earned from a battle. Does not stack with Amulet Coin. Breeding: Chansey and Blissey beget a Happiny Egg.'),
+  ('lucky-egg', 'Held: Increases EXP earned in battle by 50%.'),
+  ('lucky-punch', 'Raises Chansey’s critical hit ratio by two stages.'),
+  ('lum-berry', 'Held: Consumed to cure any status condition or confusion.'),
+  ('lustrous-orb', 'Boosts the damage from Palkia’s Dragon-type and Water-type moves by 20%.'),
+  ('luxury-ball', 'Tries to catch a wild Pokémon.  Caught Pokémon start with 200 happiness.'),
+  ('macho-brace', 'Held: Holder gains double effort values from battles, but has halved Speed in battle.'),
+  ('magnet', 'Held: Electric-Type moves from holder do 20% more damage.'),
+  ('mago-berry', 'Held: Consumed at 1/2 max HP to restore 1/8 max HP. Confuses Pokémon that dislike sweet flavor.'),
+  ('master-ball', 'Catches a wild Pokémon every time.'),
+  ('max-elixir', 'Restores PP to full for each move.'),
+  ('max-ether', 'Restores PP to full for one move.'),
+  ('max-potion', 'Restores HP to full.'),
+  ('max-revive', 'Revives with full HP.'),
+  ('meadow-plate', 'Held: Grass-Type moves from holder do 20% more damage. Changes Arceus’s and Judgment’s type to Grass.'),
+  ('mental-herb', 'Held: Consumed to cure infatuation. Gen V: Also removes Taunt, Encore, Torment, Disable, and Cursed Body.'),
+  ('metal-coat', 'Held: Steel-Type moves from holder do 20% more damage.'),
+  ('metal-powder', 'Raises Ditto’s Defense and Special Defense by 50%. The boost is lost after transforming.'),
+  ('metronome', 'Held: Consectutive uses of the same attack have a cumulative damage boost of 10%. Maximum 100% boost.'),
+  ('micle-berry', 'Held: Consumed at 1/4 max HP to boost accuracy of next move by 20%. (Gen IV: Perfect accuracy)'),
+  ('mind-plate', 'Held: Psychic-Type moves from holder do 20% more damage. Changes Arceus’s and Judgment’s type to Psychic.'),
+  ('miracle-seed', 'Held: Grass-Type moves from holder do 20% more damage.'),
+  ('moomoo-milk', 'Restores 100 HP.'),
+  ('muscle-band', 'Held: Boosts the damage of physical moves used by the holder by 10%.'),
+  ('mystic-water', 'Held: Water-Type moves from holder do 20% more damage.'),
+  ('nest-ball', 'Tries to catch a wild Pokémon.  Success rate is 3.9× for level 1 Pokémon, and drops steadily to 1× at level 30.'),
+  ('net-ball', 'Tries to catch a wild Pokémon.  Success rate is 3× for water and bug Pokémon.'),
+  ('never-melt-ice', 'Held: Ice-Type moves from holder do 20% more damage.'),
+  ('occa-berry', 'Held: Consumed when struck by a super-effective Fire-type attack to halve the damage.'),
+  ('odd-incense', 'Held: Psychic-Type moves from holder do 20% more damage. Breeding: Mr. Mime begets a Mime Jr. Egg.'),
+  ('old-gateau', 'Cures any status ailment and confusion.'),
+  ('oran-berry', 'Held: Consumed at 1/2 max HP to recover 10 HP.'),
+  ('paralyze-heal', 'Cures paralysis.'),
+  ('passho-berry', 'Held: Consumed when struck by a super-effective Water-type attack to halve the damage.'),
+  ('payapa-berry', 'Held: Consumed when struck by a super-effective Psychic-type attack to halve the damage.'),
+  ('pecha-berry', 'Held: Consumed when poisoned to cure poison.'),
+  ('persim-berry', 'Held: Consumed when confused to cure confusion.'),
+  ('petaya-berry', 'Held: Consumed at 1/4 max HP to boost Special Attack.'),
+  ('pink-scarf', 'Raises the holder’s Cuteness while in a contest.'),
+  ('poison-barb', 'Held: Poison-Type moves from holder do 20% more damage.'),
+  ('poke-ball', 'Tries to catch a wild Pokémon.'),
+  ('poke-doll', 'Ends a wild battle.'),
+  ('potion', 'Restores 20 HP.'),
+  ('power-anklet', 'Held: Holder gains 4 Speed effort values, but has halved Speed in battle.'),
+  ('power-band', 'Held: Holder gains 4 Special Defense effort values, but has halved Speed in battle.'),
+  ('power-belt', 'Held: Holder gains 4 Defense effort values, but has halved Speed in battle.'),
+  ('power-bracer', 'Held: Holder gains 4 Attack effort values, but has halved Speed in battle.'),
+  ('power-herb', 'Held: Both turns of a two-turn charge move happen at once. Consumed upon use.'),
+  ('power-lens', 'Held: Holder gains 4 Special Attack effort values, but has halved Speed in battle.'),
+  ('power-weight', 'Held: Holder gains 4 HP effort values, but has halved Speed in battle.'),
+  ('pp-max', 'Raises a move’s max PP by 60%.'),
+  ('pp-up', 'Raises a move’s max PP by 20%.'),
+  ('premier-ball', 'Tries to catch a wild Pokémon.'),
+  ('protein', 'Raises Attack effort and happiness.'),
+  ('pure-incense', 'Prevents wild encounters of level lower than your party’s lead Pokémon. Breeding: Chimecho begets a Chingling Egg.'),
+  ('quick-ball', 'Tries to catch a wild Pokémon. Success rate is 4× (Gen V: 5×), but only on the first turn.'),
+  ('quick-claw', 'Held: Holder has a 3/16 (18.75%) chance to move first.'),
+  ('quick-powder', 'Doubles Ditto’s Speed when held. The boost is lost after transforming.'),
+  ('rare-candy', 'Causes a level-up and raises happiness.'),
+  ('rawst-berry', 'Held: Consumed when burned to cure a burn.'),
+  ('razor-claw', 'Held: Raises the holder’s critical hit ratio by one stage. Held by a Sneasel while levelling up at night: Holder evolves into Weavile.'),
+  ('razor-fang', 'Held: Damaging moves gain a 10% chance to make their target flinch. Held by a Gligar while levelling up: Holder evolves into Gliscor.'),
+  ('red-flute', 'Cures attraction.'),
+  ('red-scarf', 'Raises the holder’s Coolness while in a contest.'),
+  ('repeat-ball', 'Tries to catch a wild Pokémon.  Success rate is 3× for previously-caught Pokémon.'),
+  ('revival-herb', 'Revives with full HP, but lowers happiness.'),
+  ('revive', 'Revives with half HP.'),
+  ('rindo-berry', 'Held: Consumed when struck by a super-effective Grass-type attack to halve the damage.'),
+  ('rock-incense', 'Held: Rock-Type moves from holder do 20% more damage. Breeding: Sudowoodo begets a Bonsly Egg.'),
+  ('rose-incense', 'Held: Grass-Type moves from holder do 20% more damage. Breeding: Roselia or Roserade beget a Budew Egg.'),
+  ('rowap-berry', 'Held: Consumed to deal 1/8 attacker’s max HP when holder is struck by a special attack.'),
+  ('sacred-ash', 'Revives all fainted Pokémon with full HP.'),
+  ('safari-ball', 'Tries to catch a wild Pokémon in the Great Marsh or Safari Zone.  Success rate is 1.5×.'),
+  ('salac-berry', 'Held: Consumed at 1/4 max HP to boost Speed.'),
+  ('scope-lens', 'Held: Raises the holder’s critical hit ratio by one stage.'),
+  ('sea-incense', 'Held: Water-Type moves from holder do 20% more damage. Breeding: Marill or Azumarill beget an Azurill Egg.'),
+  ('sharp-beak', 'Held: Flying-Type moves from holder do 20% more damage.'),
+  ('shed-shell', 'Held: Holder can bypass all trapping effects and switch out. Multi-turn moves still cannot be switched out of.'),
+  ('shell-bell', 'Held: Holder receives 1/8 of the damage it deals when attacking.'),
+  ('shuca-berry', 'Held: Consumed when struck by a super-effective Ground-type attack to halve the damage.'),
+  ('silk-scarf', 'Held: Normal-Type moves from holder do 20% more damage.'),
+  ('silver-powder', 'Held: Bug-Type moves from holder do 20% more damage.'),
+  ('sitrus-berry', 'Held: Consumed at 1/2 max HP to recover 1/4 max HP.'),
+  ('sky-plate', 'Held: Flying-Type moves from holder do 20% more damage. Changes Arceus’s and Judgment’s type to Flying.'),
+  ('smoke-ball', 'Held: Allows the Holder to escape from any wild battle.'),
+  ('smooth-rock', 'Held: Sandstorm by the holder lasts 8 rounds instead of 5.'),
+  ('soda-pop', 'Restores 60 HP.'),
+  ('soft-sand', 'Held: Ground-Type moves from holder do 20% more damage.'),
+  ('soothe-bell', 'Held: Doubles the happiness earned by the holder.'),
+  ('soul-dew', 'Raises Latias and Latios’s Special Attack and Special Defense by 50%.'),
+  ('spell-tag', 'Held: Ghost-Type moves from holder do 20% more damage.'),
+  ('splash-plate', 'Held: Water-Type moves from holder do 20% more damage. Changes Arceus’s and Judgment’s type to Water.'),
+  ('spooky-plate', 'Held: Ghost-Type moves from holder do 20% more damage. Changes Arceus’s and Judgment’s type to Ghost.'),
+  ('starf-berry', 'Held: Consumed at 1/4 max HP to boost a random stat by two stages.'),
+  ('stick', 'Raises Farfetch’d’s critical hit ratio by two stages.'),
+  ('sticky-barb', 'Held: Holder takes 1/8 (12.5%) its max HP at the end of each turn. When the holder is hit by a contact move, the attacking Pokémon takes 1/8 its max HP in damage and receive the item if not holding one.'),
+  ('stone-plate', 'Held: Rock-Type moves from holder do 20% more damage. Changes Arceus’s and Judgment’s type to Rock.'),
+  ('super-potion', 'Restores 50 HP.'),
+  ('tanga-berry', 'Held: Consumed when struck by a super-effective Bug-type attack to halve the damage.'),
+  ('thick-club', 'Doubles Cubone or Marowak’s Attack.'),
+  ('timer-ball', 'Tries to catch a wild Pokémon. Success rate increases by 0.1× (Gen V: 0.3×) every turn, to a max of 4×.'),
+  ('toxic-orb', 'Held: Inflicts Toxic on the holder at the end of the turn. Activates after Poison damage would occur.'),
+  ('toxic-plate', 'Held: Poison-Type moves from holder do 20% more damage. Changes Arceus’s and Judgment’s type to Poison.'),
+  ('twisted-spoon', 'Held: Psychic-Type moves from holder do 20% more damage.'),
+  ('ultra-ball', 'Tries to catch a wild Pokémon.  Success rate is 2×.'),
+  ('wacan-berry', 'Held: Consumed when struck by a super-effective Electric-type attack to halve the damage.'),
+  ('wave-incense', 'Held: Water-Type moves from holder do 20% more damage. Breeding: Mantine begets a Mantyke Egg.'),
+  ('white-flute', 'Doubles the wild Pokémon encounter rate.'),
+  ('white-herb', 'Held: Resets all lowered stats to normal at end of turn. Consumed after use.'),
+  ('wide-lens', 'Held: Provides a 1/10 (10%) boost in accuracy to the holder.'),
+  ('wiki-berry', 'Held: Consumed at 1/2 max HP to restore 1/8 max HP. Confuses Pokémon that dislike dry flavor.'),
+  ('wise-glasses', 'Held: Boosts the damage of special moves used by the holder by 1/10 (10%).'),
+  ('x-accuracy', 'Raises accuracy by one stage in battle.  Raises happiness.'),
+  ('x-attack', 'Raises Attack by one stage in battle.  Raises happiness.'),
+  ('x-defense', 'Raises Defense by one stage in battle.  Raises happiness.'),
+  ('x-sp-atk', 'Raises Special Attack by one stage in battle.  Raises happiness.'),
+  ('x-sp-def', 'Raises Special Defense by one stage in battle.  Raises happiness.'),
+  ('x-speed', 'Raises Speed by one stage in battle.  Raises happiness.'),
+  ('yache-berry', 'Held: Consumed when struck by a super-effective Ice-type attack to halve the damage.'),
+  ('yellow-flute', 'Cures confusion.'),
+  ('yellow-scarf', 'Raises the holder’s Toughness while in a contest.'),
+  ('zap-plate', 'Held: Electric-Type moves from holder do 20% more damage. Changes Arceus’s and Judgment’s type to Electric.'),
+  ('zinc', 'Raises Special Defense and happiness.'),
+  ('zoom-lens', 'Held: Provides a 1/5 (20%) boost in accuracy if the holder moves after the target.');

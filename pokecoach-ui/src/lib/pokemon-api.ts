@@ -25,6 +25,12 @@ export interface ApiError {
     error: string;
 }
 
+export interface Item {
+    id: number;
+    name: string;
+    description: string | null;
+}
+
 export async function searchPokemon(pokemonName: string, gameName?: string): Promise<Pokemon[]> {
     const params = new URLSearchParams();
 
@@ -57,6 +63,18 @@ export async function getMegaEvolutions(pokemonId: number): Promise<Pokemon[]> {
     return response.json();
 }
 
+export async function searchItems(itemName: string): Promise<Item[]> {
+    const params = new URLSearchParams({ name: itemName.trim() });
+    const response = await fetch(`${API_BASE_URL}/item/search?${params}`);
+
+    if (!response.ok) {
+        const error: ApiError = await response.json();
+        throw new Error(error.error ?? `Request failed with status ${response.status}`);
+    }
+
+    return response.json();
+}
+
 export function getArtwork(pokemon: Pokemon): string {
     // const response = await fetch(`${API_BASE_URL}/pokemon/${pokemon.id}/artwork`);
 
@@ -69,4 +87,9 @@ export function getArtwork(pokemon: Pokemon): string {
 
     
     return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.artwork_id ?? pokemon.id}.png`;
+}
+
+
+export function getItemArtwork(itemName: string): string {
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${itemName}.png`
 }

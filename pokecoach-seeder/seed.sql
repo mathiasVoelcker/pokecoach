@@ -1,5 +1,152 @@
 -- Pokemon types + damage modifiers insert
--- Generated on 2026-07-25T15:45:52.989Z
+-- Generated on 2026-08-15T21:56:20.511Z
+
+INSERT INTO type (name, color) VALUES
+  ('normal', '#A8A878'),
+  ('fighting', '#C03028'),
+  ('flying', '#A890F0'),
+  ('poison', '#A040A0'),
+  ('ground', '#E0C068'),
+  ('rock', '#B8A038'),
+  ('bug', '#A8B820'),
+  ('ghost', '#705898'),
+  ('steel', '#B8B8D0'),
+  ('fire', '#F08030'),
+  ('water', '#6890F0'),
+  ('grass', '#78C850'),
+  ('electric', '#F8D030'),
+  ('psychic', '#F85888'),
+  ('ice', '#98D8D8'),
+  ('dragon', '#7038F8'),
+  ('dark', '#705848'),
+  ('fairy', '#EE99AC'),
+  ('stellar', '#40B5A5');
+
+INSERT INTO type_damage_modifier (modifier, attacking_type, defending_type) VALUES
+  (0.5, (SELECT id FROM type WHERE name = 'normal'), (SELECT id FROM type WHERE name = 'rock')),
+  (0.5, (SELECT id FROM type WHERE name = 'normal'), (SELECT id FROM type WHERE name = 'steel')),
+  (0, (SELECT id FROM type WHERE name = 'normal'), (SELECT id FROM type WHERE name = 'ghost')),
+  (2, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'normal')),
+  (2, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'rock')),
+  (2, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'steel')),
+  (2, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'ice')),
+  (2, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'dark')),
+  (0.5, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'flying')),
+  (0.5, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'poison')),
+  (0.5, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'bug')),
+  (0.5, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'psychic')),
+  (0.5, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'fairy')),
+  (0, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'ghost')),
+  (2, (SELECT id FROM type WHERE name = 'flying'), (SELECT id FROM type WHERE name = 'fighting')),
+  (2, (SELECT id FROM type WHERE name = 'flying'), (SELECT id FROM type WHERE name = 'bug')),
+  (2, (SELECT id FROM type WHERE name = 'flying'), (SELECT id FROM type WHERE name = 'grass')),
+  (0.5, (SELECT id FROM type WHERE name = 'flying'), (SELECT id FROM type WHERE name = 'rock')),
+  (0.5, (SELECT id FROM type WHERE name = 'flying'), (SELECT id FROM type WHERE name = 'steel')),
+  (0.5, (SELECT id FROM type WHERE name = 'flying'), (SELECT id FROM type WHERE name = 'electric')),
+  (2, (SELECT id FROM type WHERE name = 'poison'), (SELECT id FROM type WHERE name = 'grass')),
+  (2, (SELECT id FROM type WHERE name = 'poison'), (SELECT id FROM type WHERE name = 'fairy')),
+  (0.5, (SELECT id FROM type WHERE name = 'poison'), (SELECT id FROM type WHERE name = 'poison')),
+  (0.5, (SELECT id FROM type WHERE name = 'poison'), (SELECT id FROM type WHERE name = 'ground')),
+  (0.5, (SELECT id FROM type WHERE name = 'poison'), (SELECT id FROM type WHERE name = 'rock')),
+  (0.5, (SELECT id FROM type WHERE name = 'poison'), (SELECT id FROM type WHERE name = 'ghost')),
+  (0, (SELECT id FROM type WHERE name = 'poison'), (SELECT id FROM type WHERE name = 'steel')),
+  (2, (SELECT id FROM type WHERE name = 'ground'), (SELECT id FROM type WHERE name = 'poison')),
+  (2, (SELECT id FROM type WHERE name = 'ground'), (SELECT id FROM type WHERE name = 'rock')),
+  (2, (SELECT id FROM type WHERE name = 'ground'), (SELECT id FROM type WHERE name = 'steel')),
+  (2, (SELECT id FROM type WHERE name = 'ground'), (SELECT id FROM type WHERE name = 'fire')),
+  (2, (SELECT id FROM type WHERE name = 'ground'), (SELECT id FROM type WHERE name = 'electric')),
+  (0.5, (SELECT id FROM type WHERE name = 'ground'), (SELECT id FROM type WHERE name = 'bug')),
+  (0.5, (SELECT id FROM type WHERE name = 'ground'), (SELECT id FROM type WHERE name = 'grass')),
+  (0, (SELECT id FROM type WHERE name = 'ground'), (SELECT id FROM type WHERE name = 'flying')),
+  (2, (SELECT id FROM type WHERE name = 'rock'), (SELECT id FROM type WHERE name = 'flying')),
+  (2, (SELECT id FROM type WHERE name = 'rock'), (SELECT id FROM type WHERE name = 'bug')),
+  (2, (SELECT id FROM type WHERE name = 'rock'), (SELECT id FROM type WHERE name = 'fire')),
+  (2, (SELECT id FROM type WHERE name = 'rock'), (SELECT id FROM type WHERE name = 'ice')),
+  (0.5, (SELECT id FROM type WHERE name = 'rock'), (SELECT id FROM type WHERE name = 'fighting')),
+  (0.5, (SELECT id FROM type WHERE name = 'rock'), (SELECT id FROM type WHERE name = 'ground')),
+  (0.5, (SELECT id FROM type WHERE name = 'rock'), (SELECT id FROM type WHERE name = 'steel')),
+  (2, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'grass')),
+  (2, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'psychic')),
+  (2, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'dark')),
+  (0.5, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'fighting')),
+  (0.5, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'flying')),
+  (0.5, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'poison')),
+  (0.5, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'ghost')),
+  (0.5, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'steel')),
+  (0.5, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'fire')),
+  (0.5, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'fairy')),
+  (2, (SELECT id FROM type WHERE name = 'ghost'), (SELECT id FROM type WHERE name = 'ghost')),
+  (2, (SELECT id FROM type WHERE name = 'ghost'), (SELECT id FROM type WHERE name = 'psychic')),
+  (0.5, (SELECT id FROM type WHERE name = 'ghost'), (SELECT id FROM type WHERE name = 'dark')),
+  (0, (SELECT id FROM type WHERE name = 'ghost'), (SELECT id FROM type WHERE name = 'normal')),
+  (2, (SELECT id FROM type WHERE name = 'steel'), (SELECT id FROM type WHERE name = 'rock')),
+  (2, (SELECT id FROM type WHERE name = 'steel'), (SELECT id FROM type WHERE name = 'ice')),
+  (2, (SELECT id FROM type WHERE name = 'steel'), (SELECT id FROM type WHERE name = 'fairy')),
+  (0.5, (SELECT id FROM type WHERE name = 'steel'), (SELECT id FROM type WHERE name = 'steel')),
+  (0.5, (SELECT id FROM type WHERE name = 'steel'), (SELECT id FROM type WHERE name = 'fire')),
+  (0.5, (SELECT id FROM type WHERE name = 'steel'), (SELECT id FROM type WHERE name = 'water')),
+  (0.5, (SELECT id FROM type WHERE name = 'steel'), (SELECT id FROM type WHERE name = 'electric')),
+  (2, (SELECT id FROM type WHERE name = 'fire'), (SELECT id FROM type WHERE name = 'bug')),
+  (2, (SELECT id FROM type WHERE name = 'fire'), (SELECT id FROM type WHERE name = 'steel')),
+  (2, (SELECT id FROM type WHERE name = 'fire'), (SELECT id FROM type WHERE name = 'grass')),
+  (2, (SELECT id FROM type WHERE name = 'fire'), (SELECT id FROM type WHERE name = 'ice')),
+  (0.5, (SELECT id FROM type WHERE name = 'fire'), (SELECT id FROM type WHERE name = 'rock')),
+  (0.5, (SELECT id FROM type WHERE name = 'fire'), (SELECT id FROM type WHERE name = 'fire')),
+  (0.5, (SELECT id FROM type WHERE name = 'fire'), (SELECT id FROM type WHERE name = 'water')),
+  (0.5, (SELECT id FROM type WHERE name = 'fire'), (SELECT id FROM type WHERE name = 'dragon')),
+  (2, (SELECT id FROM type WHERE name = 'water'), (SELECT id FROM type WHERE name = 'ground')),
+  (2, (SELECT id FROM type WHERE name = 'water'), (SELECT id FROM type WHERE name = 'rock')),
+  (2, (SELECT id FROM type WHERE name = 'water'), (SELECT id FROM type WHERE name = 'fire')),
+  (0.5, (SELECT id FROM type WHERE name = 'water'), (SELECT id FROM type WHERE name = 'water')),
+  (0.5, (SELECT id FROM type WHERE name = 'water'), (SELECT id FROM type WHERE name = 'grass')),
+  (0.5, (SELECT id FROM type WHERE name = 'water'), (SELECT id FROM type WHERE name = 'dragon')),
+  (2, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'ground')),
+  (2, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'rock')),
+  (2, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'water')),
+  (0.5, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'flying')),
+  (0.5, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'poison')),
+  (0.5, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'bug')),
+  (0.5, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'steel')),
+  (0.5, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'fire')),
+  (0.5, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'grass')),
+  (0.5, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'dragon')),
+  (2, (SELECT id FROM type WHERE name = 'electric'), (SELECT id FROM type WHERE name = 'flying')),
+  (2, (SELECT id FROM type WHERE name = 'electric'), (SELECT id FROM type WHERE name = 'water')),
+  (0.5, (SELECT id FROM type WHERE name = 'electric'), (SELECT id FROM type WHERE name = 'grass')),
+  (0.5, (SELECT id FROM type WHERE name = 'electric'), (SELECT id FROM type WHERE name = 'electric')),
+  (0.5, (SELECT id FROM type WHERE name = 'electric'), (SELECT id FROM type WHERE name = 'dragon')),
+  (0, (SELECT id FROM type WHERE name = 'electric'), (SELECT id FROM type WHERE name = 'ground')),
+  (2, (SELECT id FROM type WHERE name = 'psychic'), (SELECT id FROM type WHERE name = 'fighting')),
+  (2, (SELECT id FROM type WHERE name = 'psychic'), (SELECT id FROM type WHERE name = 'poison')),
+  (0.5, (SELECT id FROM type WHERE name = 'psychic'), (SELECT id FROM type WHERE name = 'steel')),
+  (0.5, (SELECT id FROM type WHERE name = 'psychic'), (SELECT id FROM type WHERE name = 'psychic')),
+  (0, (SELECT id FROM type WHERE name = 'psychic'), (SELECT id FROM type WHERE name = 'dark')),
+  (2, (SELECT id FROM type WHERE name = 'ice'), (SELECT id FROM type WHERE name = 'flying')),
+  (2, (SELECT id FROM type WHERE name = 'ice'), (SELECT id FROM type WHERE name = 'ground')),
+  (2, (SELECT id FROM type WHERE name = 'ice'), (SELECT id FROM type WHERE name = 'grass')),
+  (2, (SELECT id FROM type WHERE name = 'ice'), (SELECT id FROM type WHERE name = 'dragon')),
+  (0.5, (SELECT id FROM type WHERE name = 'ice'), (SELECT id FROM type WHERE name = 'steel')),
+  (0.5, (SELECT id FROM type WHERE name = 'ice'), (SELECT id FROM type WHERE name = 'fire')),
+  (0.5, (SELECT id FROM type WHERE name = 'ice'), (SELECT id FROM type WHERE name = 'water')),
+  (0.5, (SELECT id FROM type WHERE name = 'ice'), (SELECT id FROM type WHERE name = 'ice')),
+  (2, (SELECT id FROM type WHERE name = 'dragon'), (SELECT id FROM type WHERE name = 'dragon')),
+  (0.5, (SELECT id FROM type WHERE name = 'dragon'), (SELECT id FROM type WHERE name = 'steel')),
+  (0, (SELECT id FROM type WHERE name = 'dragon'), (SELECT id FROM type WHERE name = 'fairy')),
+  (2, (SELECT id FROM type WHERE name = 'dark'), (SELECT id FROM type WHERE name = 'ghost')),
+  (2, (SELECT id FROM type WHERE name = 'dark'), (SELECT id FROM type WHERE name = 'psychic')),
+  (0.5, (SELECT id FROM type WHERE name = 'dark'), (SELECT id FROM type WHERE name = 'fighting')),
+  (0.5, (SELECT id FROM type WHERE name = 'dark'), (SELECT id FROM type WHERE name = 'dark')),
+  (0.5, (SELECT id FROM type WHERE name = 'dark'), (SELECT id FROM type WHERE name = 'fairy')),
+  (2, (SELECT id FROM type WHERE name = 'fairy'), (SELECT id FROM type WHERE name = 'fighting')),
+  (2, (SELECT id FROM type WHERE name = 'fairy'), (SELECT id FROM type WHERE name = 'dragon')),
+  (2, (SELECT id FROM type WHERE name = 'fairy'), (SELECT id FROM type WHERE name = 'dark')),
+  (0.5, (SELECT id FROM type WHERE name = 'fairy'), (SELECT id FROM type WHERE name = 'poison')),
+  (0.5, (SELECT id FROM type WHERE name = 'fairy'), (SELECT id FROM type WHERE name = 'steel')),
+  (0.5, (SELECT id FROM type WHERE name = 'fairy'), (SELECT id FROM type WHERE name = 'fire'));
+
+
+-- Pokemon types + damage modifiers insert
+-- Generated on 2026-08-15T21:58:27.586Z
 
 INSERT INTO type (name, color) VALUES
   ('normal', '#A8A878'),
@@ -146,9 +293,9 @@ INSERT INTO type_damage_modifier (modifier, attacking_type, defending_type) VALU
 
 
 -- Pokemon seed
--- Generated on 2026-07-25T15:46:42.682Z
+-- Generated on 2026-08-15T21:59:23.080Z
 
-INSERT INTO pokemon (name, first_type, second_type, base_hp, base_attack, base_defense, base_special_attack, base_special_defense, base_speed, mega_evolution, artwork_id) VALUES
+INSERT INTO pokemon (name, first_type, second_type, base_hp, base_attack, base_defense, base_special_attack, base_special_defense, base_speed, mega_evolves_from, artwork_id) VALUES
   ('bulbasaur', (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'poison'), 45, 49, 49, 65, 65, 45, NULL, 1),
   ('ivysaur', (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'poison'), 60, 62, 63, 80, 80, 60, NULL, 2),
   ('venusaur', (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'poison'), 80, 82, 83, 100, 100, 80, NULL, 3),
@@ -1468,7 +1615,7 @@ INSERT INTO pokemon (name, first_type, second_type, base_hp, base_attack, base_d
 
 
 -- Ability + pokemon_abilities seed
--- Generated on 2026-07-25T15:47:37.092Z
+-- Generated on 2026-08-15T22:00:35.701Z
 
 INSERT INTO ability (name) VALUES
   ('stench'),
@@ -4638,7 +4785,7 @@ INSERT INTO pokemon_abilities (pokemon_id, ability_id) VALUES
 
 
 -- Move + pokemon_moves seed
--- Generated on 2026-07-25T15:49:13.882Z
+-- Generated on 2026-08-15T22:02:40.128Z
 
 INSERT INTO move (name, type, base_power, category) VALUES
   ('pound', (SELECT id FROM type WHERE name = 'normal'), 40, 'physical'),
@@ -98317,12 +98464,12 @@ JOIN move_ids   m ON m.name  = data.move_name;
 -- Sources:
 -- https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_in_Pok%C3%A9mon_Champions
 -- https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_FireRed_and_LeafGreen
--- Generated on 2026-07-25T15:49:14.538Z
+-- Generated on 2026-08-15T22:02:40.666Z
 
-INSERT INTO game (name) VALUES
-  ('Pokemon Champions'),
-  ('Pokemon Fire Red'),
-  ('Pokemon Leaf Green');
+INSERT INTO game (name, agent_instructions, allow_mega) VALUES
+  ('Pokemon Champions', 'You are an expert in Pokemon Video Game Championships (VGC). You are here to help people build their Pokemon teams for playing Pokemon Champions. The battle format is double battles.', TRUE),
+  ('Pokemon Fire Red', 'You are an expert in Pokemon Fire Red. You are here to help people build practical in-game teams for a Pokemon Fire Red playthrough. The battle format is single battles.', FALSE),
+  ('Pokemon Leaf Green', 'You are an expert in Pokemon Leaf Green. You are here to help people build practical in-game teams for a Pokemon Leaf Green playthrough. The battle format is single battles.', FALSE);
 
 WITH game_pokemon (pokedex_number, game_name) AS (VALUES
   (3, 'Pokemon Champions'),
@@ -98873,3 +99020,158 @@ SELECT pokemon.id, game.id
 FROM pokemon
 JOIN game ON game.name = 'Pokemon Leaf Green'
 WHERE pokemon.name = 'deoxys-defense';
+
+-- Mega forms are available only in games that explicitly support them.
+INSERT INTO pokemon_game (pokemon_id, game_id)
+SELECT pokemon.id, game.id
+FROM pokemon
+CROSS JOIN game
+WHERE pokemon.mega_evolves_from IS NOT NULL
+  AND game.allow_mega = TRUE;
+
+
+-- Pokemon types + damage modifiers insert
+-- Generated on 2026-08-15T22:12:13.579Z
+
+INSERT INTO type (name, color) VALUES
+  ('normal', '#A8A878'),
+  ('fighting', '#C03028'),
+  ('flying', '#A890F0'),
+  ('poison', '#A040A0'),
+  ('ground', '#E0C068'),
+  ('rock', '#B8A038'),
+  ('bug', '#A8B820'),
+  ('ghost', '#705898'),
+  ('steel', '#B8B8D0'),
+  ('fire', '#F08030'),
+  ('water', '#6890F0'),
+  ('grass', '#78C850'),
+  ('electric', '#F8D030'),
+  ('psychic', '#F85888'),
+  ('ice', '#98D8D8'),
+  ('dragon', '#7038F8'),
+  ('dark', '#705848'),
+  ('fairy', '#EE99AC'),
+  ('stellar', '#40B5A5');
+
+INSERT INTO type_damage_modifier (modifier, attacking_type, defending_type) VALUES
+  (0.5, (SELECT id FROM type WHERE name = 'normal'), (SELECT id FROM type WHERE name = 'rock')),
+  (0.5, (SELECT id FROM type WHERE name = 'normal'), (SELECT id FROM type WHERE name = 'steel')),
+  (0, (SELECT id FROM type WHERE name = 'normal'), (SELECT id FROM type WHERE name = 'ghost')),
+  (2, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'normal')),
+  (2, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'rock')),
+  (2, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'steel')),
+  (2, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'ice')),
+  (2, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'dark')),
+  (0.5, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'flying')),
+  (0.5, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'poison')),
+  (0.5, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'bug')),
+  (0.5, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'psychic')),
+  (0.5, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'fairy')),
+  (0, (SELECT id FROM type WHERE name = 'fighting'), (SELECT id FROM type WHERE name = 'ghost')),
+  (2, (SELECT id FROM type WHERE name = 'flying'), (SELECT id FROM type WHERE name = 'fighting')),
+  (2, (SELECT id FROM type WHERE name = 'flying'), (SELECT id FROM type WHERE name = 'bug')),
+  (2, (SELECT id FROM type WHERE name = 'flying'), (SELECT id FROM type WHERE name = 'grass')),
+  (0.5, (SELECT id FROM type WHERE name = 'flying'), (SELECT id FROM type WHERE name = 'rock')),
+  (0.5, (SELECT id FROM type WHERE name = 'flying'), (SELECT id FROM type WHERE name = 'steel')),
+  (0.5, (SELECT id FROM type WHERE name = 'flying'), (SELECT id FROM type WHERE name = 'electric')),
+  (2, (SELECT id FROM type WHERE name = 'poison'), (SELECT id FROM type WHERE name = 'grass')),
+  (2, (SELECT id FROM type WHERE name = 'poison'), (SELECT id FROM type WHERE name = 'fairy')),
+  (0.5, (SELECT id FROM type WHERE name = 'poison'), (SELECT id FROM type WHERE name = 'poison')),
+  (0.5, (SELECT id FROM type WHERE name = 'poison'), (SELECT id FROM type WHERE name = 'ground')),
+  (0.5, (SELECT id FROM type WHERE name = 'poison'), (SELECT id FROM type WHERE name = 'rock')),
+  (0.5, (SELECT id FROM type WHERE name = 'poison'), (SELECT id FROM type WHERE name = 'ghost')),
+  (0, (SELECT id FROM type WHERE name = 'poison'), (SELECT id FROM type WHERE name = 'steel')),
+  (2, (SELECT id FROM type WHERE name = 'ground'), (SELECT id FROM type WHERE name = 'poison')),
+  (2, (SELECT id FROM type WHERE name = 'ground'), (SELECT id FROM type WHERE name = 'rock')),
+  (2, (SELECT id FROM type WHERE name = 'ground'), (SELECT id FROM type WHERE name = 'steel')),
+  (2, (SELECT id FROM type WHERE name = 'ground'), (SELECT id FROM type WHERE name = 'fire')),
+  (2, (SELECT id FROM type WHERE name = 'ground'), (SELECT id FROM type WHERE name = 'electric')),
+  (0.5, (SELECT id FROM type WHERE name = 'ground'), (SELECT id FROM type WHERE name = 'bug')),
+  (0.5, (SELECT id FROM type WHERE name = 'ground'), (SELECT id FROM type WHERE name = 'grass')),
+  (0, (SELECT id FROM type WHERE name = 'ground'), (SELECT id FROM type WHERE name = 'flying')),
+  (2, (SELECT id FROM type WHERE name = 'rock'), (SELECT id FROM type WHERE name = 'flying')),
+  (2, (SELECT id FROM type WHERE name = 'rock'), (SELECT id FROM type WHERE name = 'bug')),
+  (2, (SELECT id FROM type WHERE name = 'rock'), (SELECT id FROM type WHERE name = 'fire')),
+  (2, (SELECT id FROM type WHERE name = 'rock'), (SELECT id FROM type WHERE name = 'ice')),
+  (0.5, (SELECT id FROM type WHERE name = 'rock'), (SELECT id FROM type WHERE name = 'fighting')),
+  (0.5, (SELECT id FROM type WHERE name = 'rock'), (SELECT id FROM type WHERE name = 'ground')),
+  (0.5, (SELECT id FROM type WHERE name = 'rock'), (SELECT id FROM type WHERE name = 'steel')),
+  (2, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'grass')),
+  (2, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'psychic')),
+  (2, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'dark')),
+  (0.5, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'fighting')),
+  (0.5, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'flying')),
+  (0.5, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'poison')),
+  (0.5, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'ghost')),
+  (0.5, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'steel')),
+  (0.5, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'fire')),
+  (0.5, (SELECT id FROM type WHERE name = 'bug'), (SELECT id FROM type WHERE name = 'fairy')),
+  (2, (SELECT id FROM type WHERE name = 'ghost'), (SELECT id FROM type WHERE name = 'ghost')),
+  (2, (SELECT id FROM type WHERE name = 'ghost'), (SELECT id FROM type WHERE name = 'psychic')),
+  (0.5, (SELECT id FROM type WHERE name = 'ghost'), (SELECT id FROM type WHERE name = 'dark')),
+  (0, (SELECT id FROM type WHERE name = 'ghost'), (SELECT id FROM type WHERE name = 'normal')),
+  (2, (SELECT id FROM type WHERE name = 'steel'), (SELECT id FROM type WHERE name = 'rock')),
+  (2, (SELECT id FROM type WHERE name = 'steel'), (SELECT id FROM type WHERE name = 'ice')),
+  (2, (SELECT id FROM type WHERE name = 'steel'), (SELECT id FROM type WHERE name = 'fairy')),
+  (0.5, (SELECT id FROM type WHERE name = 'steel'), (SELECT id FROM type WHERE name = 'steel')),
+  (0.5, (SELECT id FROM type WHERE name = 'steel'), (SELECT id FROM type WHERE name = 'fire')),
+  (0.5, (SELECT id FROM type WHERE name = 'steel'), (SELECT id FROM type WHERE name = 'water')),
+  (0.5, (SELECT id FROM type WHERE name = 'steel'), (SELECT id FROM type WHERE name = 'electric')),
+  (2, (SELECT id FROM type WHERE name = 'fire'), (SELECT id FROM type WHERE name = 'bug')),
+  (2, (SELECT id FROM type WHERE name = 'fire'), (SELECT id FROM type WHERE name = 'steel')),
+  (2, (SELECT id FROM type WHERE name = 'fire'), (SELECT id FROM type WHERE name = 'grass')),
+  (2, (SELECT id FROM type WHERE name = 'fire'), (SELECT id FROM type WHERE name = 'ice')),
+  (0.5, (SELECT id FROM type WHERE name = 'fire'), (SELECT id FROM type WHERE name = 'rock')),
+  (0.5, (SELECT id FROM type WHERE name = 'fire'), (SELECT id FROM type WHERE name = 'fire')),
+  (0.5, (SELECT id FROM type WHERE name = 'fire'), (SELECT id FROM type WHERE name = 'water')),
+  (0.5, (SELECT id FROM type WHERE name = 'fire'), (SELECT id FROM type WHERE name = 'dragon')),
+  (2, (SELECT id FROM type WHERE name = 'water'), (SELECT id FROM type WHERE name = 'ground')),
+  (2, (SELECT id FROM type WHERE name = 'water'), (SELECT id FROM type WHERE name = 'rock')),
+  (2, (SELECT id FROM type WHERE name = 'water'), (SELECT id FROM type WHERE name = 'fire')),
+  (0.5, (SELECT id FROM type WHERE name = 'water'), (SELECT id FROM type WHERE name = 'water')),
+  (0.5, (SELECT id FROM type WHERE name = 'water'), (SELECT id FROM type WHERE name = 'grass')),
+  (0.5, (SELECT id FROM type WHERE name = 'water'), (SELECT id FROM type WHERE name = 'dragon')),
+  (2, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'ground')),
+  (2, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'rock')),
+  (2, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'water')),
+  (0.5, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'flying')),
+  (0.5, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'poison')),
+  (0.5, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'bug')),
+  (0.5, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'steel')),
+  (0.5, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'fire')),
+  (0.5, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'grass')),
+  (0.5, (SELECT id FROM type WHERE name = 'grass'), (SELECT id FROM type WHERE name = 'dragon')),
+  (2, (SELECT id FROM type WHERE name = 'electric'), (SELECT id FROM type WHERE name = 'flying')),
+  (2, (SELECT id FROM type WHERE name = 'electric'), (SELECT id FROM type WHERE name = 'water')),
+  (0.5, (SELECT id FROM type WHERE name = 'electric'), (SELECT id FROM type WHERE name = 'grass')),
+  (0.5, (SELECT id FROM type WHERE name = 'electric'), (SELECT id FROM type WHERE name = 'electric')),
+  (0.5, (SELECT id FROM type WHERE name = 'electric'), (SELECT id FROM type WHERE name = 'dragon')),
+  (0, (SELECT id FROM type WHERE name = 'electric'), (SELECT id FROM type WHERE name = 'ground')),
+  (2, (SELECT id FROM type WHERE name = 'psychic'), (SELECT id FROM type WHERE name = 'fighting')),
+  (2, (SELECT id FROM type WHERE name = 'psychic'), (SELECT id FROM type WHERE name = 'poison')),
+  (0.5, (SELECT id FROM type WHERE name = 'psychic'), (SELECT id FROM type WHERE name = 'steel')),
+  (0.5, (SELECT id FROM type WHERE name = 'psychic'), (SELECT id FROM type WHERE name = 'psychic')),
+  (0, (SELECT id FROM type WHERE name = 'psychic'), (SELECT id FROM type WHERE name = 'dark')),
+  (2, (SELECT id FROM type WHERE name = 'ice'), (SELECT id FROM type WHERE name = 'flying')),
+  (2, (SELECT id FROM type WHERE name = 'ice'), (SELECT id FROM type WHERE name = 'ground')),
+  (2, (SELECT id FROM type WHERE name = 'ice'), (SELECT id FROM type WHERE name = 'grass')),
+  (2, (SELECT id FROM type WHERE name = 'ice'), (SELECT id FROM type WHERE name = 'dragon')),
+  (0.5, (SELECT id FROM type WHERE name = 'ice'), (SELECT id FROM type WHERE name = 'steel')),
+  (0.5, (SELECT id FROM type WHERE name = 'ice'), (SELECT id FROM type WHERE name = 'fire')),
+  (0.5, (SELECT id FROM type WHERE name = 'ice'), (SELECT id FROM type WHERE name = 'water')),
+  (0.5, (SELECT id FROM type WHERE name = 'ice'), (SELECT id FROM type WHERE name = 'ice')),
+  (2, (SELECT id FROM type WHERE name = 'dragon'), (SELECT id FROM type WHERE name = 'dragon')),
+  (0.5, (SELECT id FROM type WHERE name = 'dragon'), (SELECT id FROM type WHERE name = 'steel')),
+  (0, (SELECT id FROM type WHERE name = 'dragon'), (SELECT id FROM type WHERE name = 'fairy')),
+  (2, (SELECT id FROM type WHERE name = 'dark'), (SELECT id FROM type WHERE name = 'ghost')),
+  (2, (SELECT id FROM type WHERE name = 'dark'), (SELECT id FROM type WHERE name = 'psychic')),
+  (0.5, (SELECT id FROM type WHERE name = 'dark'), (SELECT id FROM type WHERE name = 'fighting')),
+  (0.5, (SELECT id FROM type WHERE name = 'dark'), (SELECT id FROM type WHERE name = 'dark')),
+  (0.5, (SELECT id FROM type WHERE name = 'dark'), (SELECT id FROM type WHERE name = 'fairy')),
+  (2, (SELECT id FROM type WHERE name = 'fairy'), (SELECT id FROM type WHERE name = 'fighting')),
+  (2, (SELECT id FROM type WHERE name = 'fairy'), (SELECT id FROM type WHERE name = 'dragon')),
+  (2, (SELECT id FROM type WHERE name = 'fairy'), (SELECT id FROM type WHERE name = 'dark')),
+  (0.5, (SELECT id FROM type WHERE name = 'fairy'), (SELECT id FROM type WHERE name = 'poison')),
+  (0.5, (SELECT id FROM type WHERE name = 'fairy'), (SELECT id FROM type WHERE name = 'steel')),
+  (0.5, (SELECT id FROM type WHERE name = 'fairy'), (SELECT id FROM type WHERE name = 'fire'));

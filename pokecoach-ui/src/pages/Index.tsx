@@ -47,6 +47,7 @@ const Index = () => {
                 ...pokemon,
                 moves: [],
                 ability: null,
+                item: null,
                 pros: [],
                 cons: [],
                 isPokecoachSuggestion: false,
@@ -158,6 +159,7 @@ const Index = () => {
             });
             const suggestedPokemonWithFlag: SelectedPokemon = {
                 ...suggestedPokemon,
+                item: null,
                 isPokecoachSuggestion: true,
             };
 

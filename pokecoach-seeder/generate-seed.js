@@ -3,13 +3,14 @@ const { once } = require('node:events');
 const { writeFile } = require('node:fs/promises');
 const { join } = require('node:path');
 
-const OUTPUT_FILE = join(__dirname, 'seed.sql');
+const OUTPUT_FILE = join(__dirname, '../supabase/seed.sql');
 const SEEDERS = [
   { name: 'types', script: 'type-seeder.js', port: 3000 },
   { name: 'pokemon', script: 'pokemon-seeder.js', port: 3001 },
   { name: 'abilities', script: 'ability-seeder.js', port: 3002 },
   { name: 'moves', script: 'move-seeder.js', port: 3003 },
   { name: 'games', script: 'game-seeder.js', port: 3004 },
+  { name: 'items', script: 'item-seeder.js', port: 3005 },
 ];
 
 function startSeeder({ name, script, port }) {

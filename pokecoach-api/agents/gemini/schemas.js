@@ -6,6 +6,7 @@ export const pokecoachResponseSchema = z.object({
   moves: z.array(z.string()).length(4),
   ability: z.string().nullable(),
   megaEvolvesFrom: z.string().nullable(),
+  item: z.string().nullable(),
   pros: z.array(z.string()),
   cons: z.array(z.string()),
 });
@@ -38,11 +39,16 @@ export const pokecoachResponseJsonSchema = {
       nullable: true,
       description: "If suggesting a mega evolution, the name of the base Pokemon. Otherwise null.",
     },
+    item: {
+      type: Type.STRING,
+      nullable: true,
+      description: "Lowercase held item name, or null when no item is recommended.",
+    },
     pros: stringArraySchema,
     cons: stringArraySchema,
   },
-  required: ["name", "moves", "ability", "pros", "cons"],
-  propertyOrdering: ["name", "moves", "ability", "megaEvolvesFrom", "pros", "cons"],
+  required: ["name", "moves", "ability", "megaEvolvesFrom", "item", "pros", "cons"],
+  propertyOrdering: ["name", "moves", "ability", "megaEvolvesFrom", "item", "pros", "cons"],
 };
 
 export const pokecoachEvalResponseJsonSchema = {

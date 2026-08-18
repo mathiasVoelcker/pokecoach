@@ -4,6 +4,7 @@ import abilityRoutes from './routes/ability.js';
 import moveRoutes from './routes/move.js'; 
 import pokecoachRoutes from './routes/pokecoach.js'; 
 import gameRoutes from './routes/game.js';
+import itemRoutes from './routes/item.js';
 import express from 'express';
 import cors from 'cors';
 import { Router } from 'express';
@@ -23,6 +24,7 @@ app.use('/pokemon', pokemonRoutes);
 app.use('/game', gameRoutes);
 app.use('/ability', abilityRoutes);
 app.use('/move', moveRoutes);
+app.use('/item', itemRoutes);
 app.use('/pokecoach', pokecoachRoutes);
 
 app.listen(port, () => {

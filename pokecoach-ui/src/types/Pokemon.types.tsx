@@ -1,5 +1,5 @@
 import type { Move } from "../lib/move-api";
-import { type Pokemon } from "../lib/pokemon-api";
+import { type Item, type Pokemon } from "../lib/pokemon-api";
 
 export interface PokemonType {
   type: {id: string; name: string };
@@ -8,6 +8,7 @@ export interface PokemonType {
 export interface SelectedPokemon extends Pokemon {
   moves: Move[];
   ability: string | null;
+  item?: Item | null;
   pros: string[];
   cons: string[];
   isPokecoachSuggestion: boolean;

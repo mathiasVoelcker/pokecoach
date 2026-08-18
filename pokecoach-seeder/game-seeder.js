@@ -19,7 +19,7 @@ const LEAF_GREEN_EXTRA_POKEMON = [
 ];
 
 async function appendSeedSQL(sql) {
-  const outputPath = join(__dirname, 'seed.sql');
+  const outputPath = join(__dirname, '..', 'supabase', 'seed.sql');
   let prefix = '';
 
   try {
@@ -83,7 +83,8 @@ async function generateSQL() {
     ]),
   ];
 
-  // artwork_id is the National Pokédex number for each base-form Pokémon.
+  // artwork_id identifies each roster's base-form Pokémon. Its name is then
+  // used to include every non-Mega form with the same name prefix.
   // Deoxys is form-specific in FireRed and LeafGreen, so it joins by name.
   const sql =
 `-- Game + Pokémon availability seed
@@ -92,21 +93,29 @@ async function generateSQL() {
 -- https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_FireRed_and_LeafGreen
 -- Generated on ${new Date().toISOString()}
 
-INSERT INTO game (name) VALUES
-  ('Pokemon Champions'),
-  ('Pokemon Fire Red'),
-  ('Pokemon Leaf Green');
+INSERT INTO game (name, agent_instructions, allow_mega) VALUES
+  ('Pokemon Champions', 'You are an expert in Pokemon Video Game Championships (VGC). You are here to help people build their Pokemon teams for playing Pokemon Champions. The battle format is double battles.', TRUE),
+  ('Pokemon Fire Red', 'You are an expert in Pokemon Fire Red. You are here to help people build practical in-game teams for a Pokemon Fire Red playthrough. The battle format is single battles.', FALSE),
+  ('Pokemon Leaf Green', 'You are an expert in Pokemon Leaf Green. You are here to help people build practical in-game teams for a Pokemon Leaf Green playthrough. The battle format is single battles.', FALSE);
 
 WITH game_pokemon (pokedex_number, game_name) AS (VALUES
 ${gamePokemonRows.join(',\n')}
 ), game_ids AS (
   SELECT id, name FROM game
+), game_base_pokemon AS (
+  SELECT pokemon.name AS base_pokemon_name, game_ids.id AS game_id
+  FROM game_pokemon
+  JOIN pokemon ON pokemon.artwork_id = game_pokemon.pokedex_number
+  JOIN game_ids ON game_ids.name = game_pokemon.game_name
 )
 INSERT INTO pokemon_game (pokemon_id, game_id)
-SELECT pokemon.id, game_ids.id
-FROM game_pokemon
-JOIN pokemon ON pokemon.artwork_id = game_pokemon.pokedex_number
-JOIN game_ids ON game_ids.name = game_pokemon.game_name;
+SELECT pokemon.id, game_base_pokemon.game_id
+FROM game_base_pokemon
+JOIN pokemon ON pokemon.name = game_base_pokemon.base_pokemon_name
+  OR (
+    pokemon.name LIKE game_base_pokemon.base_pokemon_name || '-%'
+    AND pokemon.mega_evolves_from IS NULL
+  );
 
 INSERT INTO pokemon_game (pokemon_id, game_id)
 SELECT pokemon.id, game.id
@@ -118,6 +127,14 @@ SELECT pokemon.id, game.id
 FROM pokemon
 JOIN game ON game.name = 'Pokemon Leaf Green'
 WHERE pokemon.name = 'deoxys-defense';
+
+-- Mega forms are available only in games that explicitly support them.
+INSERT INTO pokemon_game (pokemon_id, game_id)
+SELECT pokemon.id, game.id
+FROM pokemon
+CROSS JOIN game
+WHERE pokemon.mega_evolves_from IS NOT NULL
+  AND game.allow_mega = TRUE;
 `;
 
   const outputPath = await appendSeedSQL(sql);

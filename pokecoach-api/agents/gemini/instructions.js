@@ -3,6 +3,8 @@ If you want to suggest a mega evolution, set the pokemon name with -mega suffix 
 
 const megaForbiddenInstruction = `Do not recommend mega evolutions.`;
 
+const itemsInstruction = `Each pokemon may hold exactly 1 item. Choose one that makes stategic sence`
+
 export function normalizeGameName(gameName) {
   return typeof gameName === 'string'
     ? gameName.trim().toLowerCase().replace(/[\s-]+/g, '_')
@@ -32,7 +34,10 @@ ${agentInstructions}
 
 ${allowedListMessage}
 
-${megaInstruction}`;
+${megaInstruction}
+
+${itemsInstruction}
+`;
 }
 
 export function buildMoveSuggestionInstruction(agentInstructions) {

@@ -34,7 +34,7 @@ async function fetchType(id) {
 }
 
 async function appendSeedSQL(sql) {
-  const outputPath = join(__dirname, 'seed.sql');
+  const outputPath = join(__dirname, '..', 'supabase', 'seed.sql');
   let prefix = '';
 
   try {

@@ -1,77 +1,11 @@
 import { Router } from 'express';
-import { z } from 'zod';
 import { getMovesByNames } from '../repositories/moveService.js';
 import { getAvailablePokemons } from '../repositories/pokemonServices.js';
+import { buildSelectedPokemonFromResponse } from '../repositories/pokecoachService.js';
 import { getPokecoachAgent } from '../agents/geminiAgent.js';
 
 
 const router = Router();
-
-const pokemonTypeSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  color: z.string(),
-});
-
-const moveSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  type: pokemonTypeSchema,
-  category: z.string(),
-  base_power: z.number().nullable(),
-});
-
-const pokemonBaseSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  artwork_id: z.number().nullable(),
-  first_type: pokemonTypeSchema,
-  second_type: pokemonTypeSchema.nullable(),
-  mega_evolves_from: z.lazy(() => pokemonBaseSchema.nullable()),
-  base_hp: z.number(),
-  base_attack: z.number(),
-  base_defense: z.number(),
-  base_special_attack: z.number(),
-  base_special_defense: z.number(),
-  base_speed: z.number(),
-});
-
-const selectedPokemonSchema = pokemonBaseSchema.extend({
-  moves: z.array(moveSchema),
-  ability: z.string().nullable(),
-  pros: z.array(z.string()),
-  cons: z.array(z.string()),
-});
-
-
-function findPokemonByName(pokemons, pokemonName) {
-  const normalizedPokemonName = pokemonName.trim().toLowerCase();
-
-  return pokemons.find((pokemon) => pokemon.name.toLowerCase() === normalizedPokemonName)
-    ?? pokemons.find((pokemon) => pokemon.name.toLowerCase().includes(normalizedPokemonName));
-}
-
-async function buildSelectedPokemonFromResponse(pokecoachResponse, availablePokemons) {
-  const pokemonData = findPokemonByName(availablePokemons, pokecoachResponse.name);
-
-  if (!pokemonData) {
-    throw new Error(`Suggested Pokemon is not available: ${pokecoachResponse.name}`);
-  }
-
-  const baseFormPokemonName = pokecoachResponse.megaEvolvesFrom;
-  const megaEvolvesFromData = baseFormPokemonName ? findPokemonByName(availablePokemons, baseFormPokemonName) : null;
-
-  const moves = await getMovesByNames(pokecoachResponse.moves);
-
-  return selectedPokemonSchema.parse({
-    ...pokemonData,
-    mega_evolves_from: megaEvolvesFromData,
-    moves,
-    ability: pokecoachResponse.ability,
-    pros: pokecoachResponse.pros,
-    cons: pokecoachResponse.cons,
-  });
-}
 
 // POST /pokecoach/pokemon
 router.post('/pokemon', async (req, res) => {
@@ -96,6 +30,7 @@ router.post('/pokemon', async (req, res) => {
       previouslyRecommendedPokemon,
     });
     const availablePokemons = await getAvailablePokemons(agent.gameName);
+    console.log('Available Pokemons:', availablePokemons.map(p => p.name));
     /*
       the data structured from the agent response does not contain all data needed. 
       We need to query on our database for pokemon stats, types and move details. 
